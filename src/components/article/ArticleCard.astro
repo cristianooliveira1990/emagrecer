@@ -1,0 +1,144 @@
+---
+import Image from '../ui/Image.astro';
+import { formatDate, formatReadingTime } from '../../utils/helpers';
+
+interface Props {
+  post: {
+    title: string;
+    slug: string;
+    excerpt: string;
+    date: string;
+    featuredImage: {
+      src: string;
+      alt: string;
+      width: number;
+      height: number;
+    } | null;
+    categories: Array<{ name: string; slug: string }>;
+    readingTime: number;
+  };
+  variant?: 'default' | 'featured' | 'horizontal' | 'compact' | 'vertical';
+  class?: string;
+}
+
+const { post, variant = 'default', class: className = '' } = Astro.props;
+const category = post.categories[0];
+const formattedDate = formatDate(post.date);
+const readingTime = formatReadingTime(post.readingTime);
+
+const baseClasses = 'group cursor-pointer bg-surface rounded-xl border border-surface-variant premium-shadow overflow-hidden';
+
+function getVariantClasses(v: string): string {
+  switch (v) {
+    case 'featured':
+      return 'flex flex-col md:flex-row';
+    case 'horizontal':
+      return 'flex flex-col sm:flex-row';
+    case 'vertical':
+      return 'flex flex-col';
+    case 'compact':
+      return 'flex gap-4';
+    default:
+      return 'flex flex-col md:flex-row';
+  }
+}
+
+function getContentClasses(v: string): string {
+  switch (v) {
+    case 'featured':
+      return 'w-full md:w-1/2 p-8 flex flex-col justify-center';
+    case 'horizontal':
+      return 'w-full sm:w-3/5 p-6 flex flex-col justify-center';
+    case 'vertical':
+      return 'p-6 flex flex-col flex-grow';
+    case 'compact':
+      return 'flex-1 min-w-0';
+    default:
+      return 'w-full md:w-1/2 p-8 flex flex-col justify-center';
+  }
+}
+
+function getImageClasses(v: string): string {
+  switch (v) {
+    case 'featured':
+      return 'w-full md:w-1/2 relative h-64 md:h-auto overflow-hidden';
+    case 'horizontal':
+      return 'w-full sm:w-2/5 h-48 sm:h-auto relative overflow-hidden';
+    case 'vertical':
+      return 'h-48 relative overflow-hidden';
+    case 'compact':
+      return 'w-20 h-20 rounded-lg flex-shrink-0 overflow-hidden';
+    default:
+      return 'w-full md:w-1/2 relative h-64 md:h-auto overflow-hidden';
+  }
+}
+
+const vClasses = getVariantClasses(variant);
+const cClasses = getContentClasses(variant);
+const iClasses = getImageClasses(variant);
+const showFull = post.featuredImage && variant !== 'compact';
+const showCompact = post.featuredImage && variant === 'compact';
+const isH = variant === 'horizontal';
+const isV = variant === 'vertical';
+const isC = variant === 'compact';
+---
+
+<article class:list={[baseClasses, vClasses, className]}>
+  <a href={`/artigo/${post.slug}`} class="block">
+    <div class={iClasses}>
+      {showFull && (
+        <Image
+          src={post.featuredImage.src}
+          alt={post.featuredImage.alt}
+          width={post.featuredImage.width}
+          height={post.featuredImage.height}
+          class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+      )}
+      {showCompact && (
+        <div class={iClasses}>
+          <Image
+            src={post.featuredImage.src}
+            alt={post.featuredImage.alt}
+            width={post.featuredImage.width}
+            height={post.featuredImage.height}
+            class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          />
+        </div>
+      )}
+    </div>
+    <div class={cClasses}>
+      {category && (
+        <div class="mb-3">
+          <span class="bg-secondary-container text-on-secondary-container font-label-caps text-label-caps px-3 py-1 rounded-full inline-block">
+            {category.name}
+          </span>
+        </div>
+      )}
+      <h3 class="font-headline-sm text-headline-sm text-on-background mb-2 group-hover:text-primary transition-colors {isH || isV ? 'text-[20px]' : ''}">
+        {post.title}
+      </h3>
+      {!isC && (
+        <p class="font-body-md text-body-md text-on-surface-variant mb-4 line-clamp-2 {isH || isV ? 'text-[14px]' : ''}">
+          {post.excerpt}
+        </p>
+      )}
+      {isC ? (
+        <span class="font-label-caps text-label-caps text-on-surface-variant mt-2 inline-block">
+          {readingTime}
+        </span>
+      ) : (
+        <div class="flex {isV ? 'justify-between' : ''} {isV ? '' : 'items-center'} {isV ? '' : 'space-x-4'} {isV ? 'mt-auto' : ''} text-outline font-label-caps text-label-caps">
+          <span class="flex items-center space-x-1">
+            <span class="material-symbols-outlined text-[16px]" data-icon="schedule">schedule</span>
+            <span>{readingTime}</span>
+          </span>
+          <span>{formattedDate}</span>
+          {isV && (
+            <span class="material-symbols-outlined text-primary group-hover:translate-x-1 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+          )}
+        </div>
+      )}
+    </div>
+  </a>
+</article>

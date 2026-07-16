@@ -1,0 +1,122 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import ArticleCard from '../../components/article/ArticleCard.astro';
+import Section from '../../components/ui/Section.astro';
+import Container from '../../components/ui/Container.astro';
+import { wpClient } from '../../services/wp-graphql';
+
+export async function getStaticPaths() {
+  try {
+    const categories = await wpClient.getCategories(100);
+    return categories.map((category) => ({
+      params: { slug: category.slug },
+      props: { category },
+    }));
+  } catch (error) {
+    console.warn('Failed to fetch categories from WordPress for static paths:', error);
+    return [];
+  }
+}
+
+interface Props {
+  category: {
+    name: string;
+    slug: string;
+    description: string;
+    count: number;
+  };
+  posts: {
+    posts: Array<{
+      title: string;
+      slug: string;
+      excerpt: string;
+      date: string;
+      featuredImage: { src: string; alt: string; width: number; height: number } | null;
+      categories: Array<{ name: string; slug: string }>;
+      readingTime: number;
+    }>;
+    pageInfo: { hasNextPage: boolean; hasPreviousPage: boolean; startCursor: string | null; endCursor: string | null };
+  };
+  currentPage: number;
+  siteUrl: string;
+}
+
+const { category, posts, currentPage, siteUrl } = Astro.props;
+
+const canonicalURL = `${siteUrl}/categoria/${category.slug}${currentPage > 1 ? `/pagina/${currentPage}` : ''}`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'CollectionPage',
+  name: `${category.name} - Emagrecer`,
+  description: category.description || `Artigos sobre ${category.name.toLowerCase()}`,
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: posts.posts.map((post, index) => ({
+      '@type': 'ListItem',
+      position: index + 1,
+      url: new URL(`/artigo/${post.slug}`, siteUrl).toString(),
+      name: post.title,
+    })),
+  },
+};
+---
+
+<MainLayout
+  title={`${category.name} - Emagrecer`}
+  description={category.description || `Descubra artigos sobre ${category.name.toLowerCase()} fundamentados em ciência para sua saúde e bem-estar.`}
+  canonical={canonicalURL}
+  ogImage={posts.posts[0]?.featuredImage?.src}
+  schema={jsonLd}
+>
+  <Container>
+    <!-- Category Header -->
+    <header class="mb-12 text-center max-w-3xl mx-auto">
+      <span class="inline-block bg-tertiary-fixed text-on-tertiary-container font-label-caps text-label-caps px-4 py-1 rounded-full mb-4">
+        {category.name}
+      </span>
+      <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-4">
+        {category.name}
+      </h1>
+      {category.description && (
+        <p class="font-body-lg text-body-lg text-on-surface-variant">
+          {category.description}
+        </p>
+      )}
+      <p class="font-body-md text-body-md text-on-surface-variant mt-4">
+        {category.count} artigo{category.count !== 1 ? 's' : ''} encontrado{category.count !== 1 ? 's' : ''}
+      </p>
+    </header>
+
+    <!-- Posts Grid -->
+    {posts.posts.length > 0 ? (
+      <Section padding="none">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {posts.posts.map((post) => (
+            <ArticleCard post={post} variant="default" />
+          ))}
+        </div>
+
+        <!-- Pagination -->
+        {posts.pageInfo.hasNextPage && (
+          <nav class="mt-12 flex justify-center" aria-label="Paginação">
+            <a
+              href={`/categoria/${category.slug}/pagina/${currentPage + 1}`}
+              class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-container text-on-primary font-label-caps text-label-caps rounded-lg transition-all"
+            >
+              Próximos artigos
+              <span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+            </a>
+          </nav>
+        )}
+      </Section>
+    ) : (
+      <Section padding="xl">
+        <div class="text-center py-16">
+          <span class="material-symbols-outlined text-[64px] text-outline-variant mb-4" data-icon="search_off">search_off</span>
+          <h2 class="font-headline-sm text-headline-sm text-on-surface mb-2">Nenhum artigo encontrado</h2>
+          <p class="font-body-md text-body-md text-on-surface-variant">Não há artigos nesta categoria ainda.</p>
+        </div>
+      </Section>
+    )}
+  </Container>
+</MainLayout>

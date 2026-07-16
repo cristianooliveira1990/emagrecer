@@ -1,0 +1,122 @@
+---
+import { formatDate, formatReadingTime } from '../../utils/helpers';
+
+interface Props {
+  title?: string;
+  description?: string;
+  placeholder?: string;
+  buttonText?: string;
+  privacyText?: string;
+  action?: string;
+  variant?: 'default' | 'inline' | 'minimal';
+  class?: string;
+  icon?: boolean;
+}
+
+const {
+  title = 'Inspiração Semanal na sua Caixa de Entrada',
+  description = 'Junte-se a milhares de leitores e receba nossas melhores dicas de nutrição, receitas exclusivas e guias de bem-estar, totalmente grátis.',
+  placeholder = 'Seu melhor e-mail',
+  buttonText = 'Inscrever-se',
+  privacyText = 'Respeitamos sua privacidade. Cancele quando quiser.',
+  action = '/api/newsletter',
+  variant = 'default',
+  class: className = '',
+  icon = true,
+} = Astro.props;
+---
+
+{variant === 'default' && (
+  <section class="max-w-container-max mx-auto px-margin-mobile md:px-gutter py-[120px] {className}">
+    <div class="bg-surface-container-low rounded-2xl p-8 md:p-16 text-center premium-shadow border border-surface-variant/50">
+      {icon && (
+        <span class="material-symbols-outlined text-[48px] text-primary mb-6" data-icon="mark_email_read">mark_email_read</span>
+      )}
+      <h2 class="font-headline-md text-headline-md text-on-background mb-4">
+        {title}
+      </h2>
+      <p class="font-body-md text-body-md text-on-surface-variant mb-8 max-w-[600px] mx-auto">
+        {description}
+      </p>
+      <form action={action} method="POST" class="flex flex-col sm:flex-row gap-4 justify-center max-w-[500px] mx-auto newsletter-form">
+        <input
+          type="email"
+          name="email"
+          required
+          class="flex-grow bg-surface border border-outline-variant rounded-lg px-4 py-3 font-body-md text-body-md text-on-background focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-shadow placeholder:text-outline-variant"
+          placeholder={placeholder}
+          aria-label="Endereço de e-mail"
+        />
+        <button
+          type="submit"
+          class="bg-primary hover:bg-primary-container text-on-primary font-body-md text-body-md px-6 py-3 whitespace-nowrap rounded-lg transition-all"
+        >
+          {buttonText}
+        </button>
+      </form>
+      <p class="font-label-caps text-label-caps text-outline mt-4 font-normal">
+        {privacyText}
+      </p>
+    </div>
+  </section>
+)}
+
+{variant === 'inline' && (
+  <div class="bg-surface-container-low rounded-xl p-6 md:p-8 text-center premium-shadow {className}">
+    {icon && (
+      <span class="material-symbols-outlined text-[48px] text-primary mb-4" data-icon="mark_email_read">mark_email_read</span>
+    )}
+    <h3 class="font-headline-md text-headline-md text-on-surface mb-3">
+      {title}
+    </h3>
+    <p class="font-body-md text-body-md text-on-surface-variant mb-6 max-w-md mx-auto">
+      {description}
+    </p>
+    <form action={action} method="POST" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto newsletter-form">
+      <input
+        type="email"
+        name="email"
+        required
+        class="flex-1 px-4 py-3 bg-white border border-outline-variant rounded-lg font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+        placeholder={placeholder}
+        aria-label="Endereço de e-mail"
+      />
+      <button
+        type="submit"
+        class="px-6 py-3 bg-primary hover:bg-primary-container text-on-primary font-body-md text-body-md font-semibold rounded-lg transition-all whitespace-nowrap"
+      >
+        {buttonText}
+      </button>
+    </form>
+  </div>
+)}
+
+{variant === 'minimal' && (
+  <div class="w-full content-canvas mt-16 p-8 md:p-12 bg-surface-container-low rounded-xl text-center premium-shadow {className}">
+    {icon && (
+      <span class="material-symbols-outlined text-[48px] text-primary mb-4" data-icon="mark_email_read">mark_email_read</span>
+    )}
+    <h3 class="font-headline-md text-headline-md text-on-surface mb-3">
+      {title}
+    </h3>
+    <p class="font-body-md text-body-md text-on-surface-variant mb-6 max-w-md mx-auto">
+      {description}
+    </p>
+    <form action={action} method="POST" class="flex flex-col sm:flex-row gap-3 max-w-lg mx-auto newsletter-form">
+      <input
+        type="email"
+        name="email"
+        required
+        class="flex-1 px-4 py-3 bg-white border border-outline-variant rounded-lg font-body-md text-body-md focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all"
+        placeholder={placeholder}
+        aria-label="Endereço de e-mail"
+      />
+      <button
+        type="submit"
+        class="px-6 py-3 bg-primary hover:bg-primary-container text-on-primary font-body-md text-body-md font-semibold rounded-lg transition-all whitespace-nowrap"
+      >
+        {buttonText}
+      </button>
+    </form>
+  </div>
+)}

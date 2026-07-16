@@ -1,0 +1,163 @@
+---
+import Container from '../ui/Container.astro';
+import Button from '../ui/Button.astro';
+
+interface NavItem {
+  label: string;
+  href: string;
+  active?: boolean;
+}
+
+interface Props {
+  navigation?: NavItem[];
+  logo?: {
+    src: string;
+    alt: string;
+    text?: string;
+  };
+  ctaText?: string;
+  ctaHref?: string;
+}
+
+const {
+  navigation = [
+    { label: 'Início', href: '/' },
+    { label: 'Nutrição', href: '/categoria/nutricao' },
+    { label: 'Treino', href: '/categoria/treino' },
+    { label: 'Mente', href: '/categoria/mente' },
+    { label: 'Saúde', href: '/categoria/saude' },
+  ],
+  logo = { src: '/logo.png', alt: 'Emagrecer', text: 'Emagrecer' },
+  ctaText = 'Newsletter',
+  ctaHref = '/newsletter',
+} = Astro.props;
+
+const currentPath = Astro.url.pathname;
+---
+
+<header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm glass-nav transition-transform duration-300">
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-gutter flex items-center justify-between h-20">
+    <!-- Brand Logo -->
+    <a href="/" class="flex-shrink-0 flex items-center" aria-label="Ir para a página inicial">
+      {logo.src ? (
+        <img
+          src={logo.src}
+          alt={logo.alt}
+          class="h-10 w-auto object-contain"
+        />
+      ) : (
+        <span class="font-display-lg text-display-lg tracking-tighter text-primary dark:text-primary-fixed-dim">
+          {logo.text}
+        </span>
+      )}
+    </a>
+
+    <!-- Navigation Links (Desktop) -->
+    <nav class="hidden md:flex space-x-8" aria-label="Navegação principal">
+      {navigation.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            'font-body-md text-body-md transition-all duration-300',
+            item.href === currentPath || item.active
+              ? 'text-primary dark:text-primary-fixed-dim font-semibold border-b-2 border-primary pb-1'
+              : 'text-on-surface-variant dark:text-on-surface-variant hover:text-primary dark:hover:text-primary-fixed',
+          ]}
+          aria-current={item.href === currentPath || item.active ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ))}
+    </nav>
+
+    <!-- Trailing Action (Desktop) -->
+    <div class="hidden md:block">
+      <Button href={ctaHref} variant="primary" size="sm" class="uppercase tracking-wider">
+        {ctaText}
+      </Button>
+    </div>
+
+    <!-- Mobile Menu Toggle -->
+    <div class="md:hidden flex items-center">
+      <button
+        class="text-on-surface-variant hover:text-primary focus:outline-none p-2"
+        aria-label="Abrir menu"
+        aria-expanded="false"
+        aria-controls="mobile-menu"
+      >
+        <span class="material-symbols-outlined" data-icon="menu">menu</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="md:hidden hidden bg-surface border-t border-outline-variant/30 py-4 px-margin-mobile">
+    <nav class="flex flex-col space-y-4" aria-label="Navegação móvel">
+      {navigation.map((item) => (
+        <a
+          href={item.href}
+          class:list={[
+            'font-body-md text-body-md px-2 py-2 rounded transition-colors',
+            item.href === currentPath || item.active
+              ? 'text-primary font-semibold bg-primary/10'
+              : 'text-on-surface-variant hover:text-primary hover:bg-surface-container',
+          ]}
+          aria-current={item.href === currentPath || item.active ? 'page' : undefined}
+        >
+          {item.label}
+        </a>
+      ))}
+      <Button href={ctaHref} variant="primary" size="md" class="w-full mt-4">
+        {ctaText}
+      </Button>
+    </nav>
+  </div>
+</header>
+
+<script is:inline>
+  // Mobile menu toggle
+  const menuToggle = document.querySelector('header button[aria-label="Abrir menu"]');
+  const mobileMenu = document.getElementById('mobile-menu');
+  const menuIcon = menuToggle?.querySelector('.material-symbols-outlined');
+
+  menuToggle?.addEventListener('click', () => {
+    const isExpanded = menuToggle.getAttribute('aria-expanded') === 'true';
+    menuToggle.setAttribute('aria-expanded', (!isExpanded).toString());
+    mobileMenu?.classList.toggle('hidden');
+    if (menuIcon) {
+      menuIcon.textContent = isExpanded ? 'menu' : 'close';
+    }
+  });
+
+  // Close mobile menu when clicking a link
+  mobileMenu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      mobileMenu.classList.add('hidden');
+      menuToggle?.setAttribute('aria-expanded', 'false');
+      if (menuIcon) menuIcon.textContent = 'menu';
+    });
+  });
+
+  // Header scroll effect
+  let lastScrollY = window.scrollY;
+  const header = document.querySelector('header');
+
+  window.addEventListener('scroll', () => {
+    const currentScrollY = window.scrollY;
+    if (currentScrollY > 20) {
+      header?.classList.add('shadow-md');
+      header?.classList.remove('shadow-sm');
+    } else {
+      header?.classList.remove('shadow-md');
+      header?.classList.add('shadow-sm');
+    }
+    lastScrollY = currentScrollY;
+  });
+</script>
+
+<style>
+  .glass-nav {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+</style>

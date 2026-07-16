@@ -1,0 +1,22 @@
+---
+interface Props {
+  children: AstroHTMLAttributes<'div'>['children'];
+  maxWidth?: 'container' | 'content' | 'prose' | 'full';
+  class?: string;
+  as?: 'div' | 'section' | 'article' | 'main' | 'aside' | 'header' | 'footer';
+}
+
+const { children, maxWidth = 'container', class: className = '', as = 'div' } = Astro.props;
+
+const maxWidthClasses = {
+  container: 'max-w-container-max mx-auto px-margin-mobile md:px-gutter',
+  content: 'max-w-[720px] mx-auto px-margin-mobile md:px-gutter',
+  prose: 'max-w-[720px] mx-auto px-margin-mobile md:px-gutter',
+  full: 'w-full px-margin-mobile md:px-gutter',
+};
+
+const baseClass = maxWidthClasses[maxWidth];
+const classList = [baseClass, className].filter(Boolean).join(' ');
+---
+
+<div class={classList} set:html={children} />

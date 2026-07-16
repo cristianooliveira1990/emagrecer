@@ -1,0 +1,151 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import Section from '../components/ui/Section.astro';
+import Container from '../components/ui/Container.astro';
+
+const canonicalURL = 'https://emagrecer.xx.kg/busca';
+
+const popularSearches = [
+  'jejum intermitente',
+  'receitas low carb',
+  'treino em casa',
+  'mindfulness',
+  'sono reparador',
+  'suplementação',
+  'metabolismo',
+  'longevidade',
+];
+---
+
+<MainLayout
+  title="Busca - Emagrecer"
+  description="Pesquise artigos sobre nutrição, treino, saúde mental e bem-estar no Emagrecer."
+  canonical={canonicalURL}
+>
+  <Container maxWidth="prose">
+    <Section padding="xl">
+      <header class="mb-12 text-center">
+        <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-4">
+          Buscar Artigos
+        </h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">
+          Encontre conteúdo sobre nutrição, treinos, saúde mental e bem-estar
+        </p>
+      </header>
+
+      <!-- Search Form -->
+      <div class="max-w-2xl mx-auto mb-12">
+        <div class="relative">
+          <span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+          <input
+            type="search"
+            id="search-input"
+            placeholder="Digite sua busca... (ex: jejum intermitente, receitas low carb, mindfulness)"
+            class="w-full pl-12 pr-4 py-4 bg-surface border border-outline-variant rounded-xl font-body-lg text-lg text-on-surface placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            autocomplete="off"
+            aria-label="Buscar artigos"
+          />
+        </div>
+        <p class="text-center mt-3 font-body-md text-body-md text-on-surface-variant">
+          Dica: use termos como "jejum", "receitas", "treino", "ansiedade", "sono"
+        </p>
+      </div>
+
+      <!-- Search Results Container -->
+      <div id="search-results" class="hidden">
+        <div id="search-stats" class="mb-6 font-body-md text-body-md text-on-surface-variant"></div>
+        <div id="search-list" class="space-y-6"></div>
+        <div id="search-pagination" class="mt-8 flex justify-center"></div>
+      </div>
+
+      <!-- No Results -->
+      <div id="search-empty" class="hidden text-center py-16">
+        <span class="material-symbols-outlined text-[64px] text-outline-variant mb-4" data-icon="search_off">search_off</span>
+        <h2 class="font-headline-sm text-headline-sm text-on-surface mb-2">Nenhum resultado encontrado</h2>
+        <p class="font-body-md text-body-md text-on-surface-variant mb-6">Tente termos diferentes ou mais genéricos.</p>
+        <a href="/" class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-container text-on-primary font-label-caps text-label-caps rounded-lg transition-all">
+          Voltar ao início
+          <span class="material-symbols-outlined" data-icon="arrow_back">arrow_back</span>
+        </a>
+      </div>
+
+      <!-- Popular Searches -->
+      <div class="mt-16 pt-12 border-t border-outline-variant/30">
+        <h3 class="font-headline-sm text-headline-sm text-on-surface mb-6 text-center">Buscas Populares</h3>
+        <div class="flex flex-wrap justify-center gap-3" id="popular-searches">
+          {popularSearches.map((term) => (
+            <button
+              type="button"
+              class="px-4 py-2 bg-surface-container-low text-on-surface-variant border border-outline-variant font-label-caps text-label-caps rounded-full hover:border-primary hover:text-primary transition-colors"
+              data-search-term={term}
+            >
+              {term}
+            </button>
+          ))}
+        </div>
+      </div>
+    </Section>
+  </Container>
+</MainLayout>
+
+<script is:inline>
+  // Pagefind Search Integration
+  const script = document.createElement('script');
+  script.src = '/pagefind/pagefind-ui.js';
+  script.onload = () => {
+    new window.PagefindUI({
+      element: '#search-results',
+      showSubResults: true,
+      showImages: true,
+      excerptLength: 160,
+      translations: {
+        placeholder: 'Buscar artigos...',
+        zero_results: 'Nenhum resultado para "[SEARCH_TERM]"',
+        many_results: 'RESULTADOS encontrados',
+        one_result: '1 RESULTADO encontrado',
+        alt_search: 'Buscar por',
+      },
+    });
+  };
+  document.head.appendChild(script);
+
+  // Popular search buttons
+  document.querySelectorAll('#popular-searches button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const term = btn.dataset.searchTerm;
+      const input = document.getElementById('search-input');
+      if (input) {
+        input.value = term;
+        input.dispatchEvent(new Event('input'));
+        input.focus();
+      }
+    });
+  });
+</script>
+
+<style>
+  /* Pagefind UI Custom Styles */
+  .pagefind-ui__search-input {
+    @apply w-full pl-12 pr-4 py-4 bg-surface border border-outline-variant rounded-xl font-body-lg text-lg text-on-surface placeholder:text-outline-variant focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all;
+  }
+  
+  .pagefind-ui__result {
+    @apply bg-surface border border-outline-variant/30 rounded-xl p-6 transition-shadow hover:shadow-lg;
+  }
+  
+  .pagefind-ui__result-title {
+    @apply font-headline-sm text-headline-sm text-on-surface mb-2 block hover:text-primary transition-colors;
+  }
+  
+  .pagefind-ui__result-excerpt {
+    @apply font-body-md text-body-md text-on-surface-variant line-clamp-2;
+  }
+  
+  .pagefind-ui__result-category {
+    @apply font-label-caps text-label-caps text-primary mt-2 inline-block;
+  }
+  
+  .pagefind-ui__message {
+    @apply text-center py-8 font-body-md text-body-md text-on-surface-variant;
+  }
+</style>

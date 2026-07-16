@@ -1,0 +1,35 @@
+---
+interface Props {
+  children: AstroHTMLAttributes<'section'>['children'];
+  class?: string;
+  padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
+  background?: 'default' | 'surface' | 'container-low' | 'container-high';
+}
+
+const { children, class: className = '', padding = 'lg', background = 'default' } = Astro.props;
+
+const paddingClasses = {
+  none: '',
+  sm: 'py-8',
+  md: 'py-16',
+  lg: 'py-section-gap',
+  xl: 'py-[120px]',
+};
+
+const backgroundClasses = {
+  default: 'bg-background',
+  surface: 'bg-surface',
+  'container-low': 'bg-surface-container-low',
+  'container-high': 'bg-surface-container-high',
+};
+---
+
+<section
+  class:list={[
+    paddingClasses[padding],
+    backgroundClasses[background],
+    className,
+  ]}
+>
+  {children}
+</section>

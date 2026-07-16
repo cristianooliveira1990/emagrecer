@@ -1,0 +1,55 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import Section from '../components/ui/Section.astro';
+import Container from '../components/ui/Container.astro';
+---
+
+<MainLayout
+  title="Página Não Encontrada - Emagrecer"
+  description="A página que você procura não existe ou foi movida. Volte ao início ou use a busca."
+  noindex
+>
+  <Container maxWidth="prose">
+    <Section padding="xl" class="min-h-[60vh] flex items-center justify-center">
+      <div class="text-center">
+        <span class="material-symbols-outlined text-[120px] text-primary/20 mb-6" data-icon="search_off">search_off</span>
+        <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-4">
+          404
+        </h1>
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-4">
+          Página Não Encontrada
+        </h2>
+        <p class="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-md mx-auto">
+          A página que você procura não existe, foi movida ou o endereço está incorreto.
+        </p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+          <a href="/" class="inline-flex items-center gap-2 px-8 py-3 bg-primary hover:bg-primary-container text-on-primary font-label-caps text-label-caps rounded-lg transition-all">
+            <span class="material-symbols-outlined" data-icon="home">home</span>
+            Voltar ao Início
+          </a>
+          <a href="/busca" class="inline-flex items-center gap-2 px-8 py-3 border border-outline-variant hover:border-primary hover:text-primary font-label-caps text-label-caps rounded-lg transition-all">
+            <span class="material-symbols-outlined" data-icon="search">search</span>
+            Buscar Artigos
+          </a>
+        </div>
+        <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6 text-center">
+          <a href="/categoria/nutricao" class="p-6 bg-surface rounded-xl border border-surface-variant premium-shadow hover:shadow-lg transition-shadow group">
+            <span class="material-symbols-outlined text-primary text-[32px] mb-3 block" data-icon="restaurant">restaurant</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-2 group-hover:text-primary transition-colors">Nutrição</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant">Artigos sobre alimentação saudável</p>
+          </a>
+          <a href="/categoria/treino" class="p-6 bg-surface rounded-xl border border-surface-variant premium-shadow hover:shadow-lg transition-shadow group">
+            <span class="material-symbols-outlined text-primary text-[32px] mb-3 block" data-icon="fitness_center">fitness_center</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-2 group-hover:text-primary transition-colors">Treino</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant">Exercícios e movimento consciente</p>
+          </a>
+          <a href="/categoria/mente" class="p-6 bg-surface rounded-xl border border-surface-variant premium-shadow hover:shadow-lg transition-shadow group">
+            <span class="material-symbols-outlined text-primary text-[32px] mb-3 block" data-icon="psychology">psychology</span>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-2 group-hover:text-primary transition-colors">Mente</h3>
+            <p class="font-body-md text-body-md text-on-surface-variant">Saúde mental e bem-estar</p>
+          </a>
+        </div>
+      </div>
+    </Section>
+  </Container>
+</MainLayout>

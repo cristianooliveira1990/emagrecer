@@ -1,0 +1,306 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import Breadcrumb from '../../components/layout/Breadcrumb.astro';
+import Image from '../../components/ui/Image.astro';
+import Newsletter from '../../components/newsletter/Newsletter.astro';
+import ArticleSidebar from '../../components/sidebar/ArticleSidebar.astro';
+import Container from '../../components/ui/Container.astro';
+import { formatDate, formatReadingTime } from '../../utils/helpers';
+import { wpClient } from '../../services/wp-graphql';
+
+export async function getStaticPaths() {
+  try {
+    const posts = await wpClient.getPosts(100);
+    return posts.nodes.map((post) => ({
+      params: { slug: post.slug },
+      props: { post },
+    }));
+  } catch (error) {
+    console.warn('Failed to fetch posts from WordPress for static paths:', error);
+    return [];
+  }
+}
+
+interface Props {
+  post: {
+    title: string;
+    slug: string;
+    excerpt: string;
+    content: string;
+    date: string;
+    modified: string;
+    featuredImage: {
+      src: string;
+      alt: string;
+      width: number;
+      height: number;
+    } | null;
+    author: {
+      name: string;
+      slug: string;
+      description: string;
+      avatar: { src: string; alt: string } | null;
+    };
+    categories: Array<{ name: string; slug: string }>;
+    tags: Array<{ name: string; slug: string }>;
+    readingTime: number;
+    seo: {
+      title: string | null;
+      metaDesc: string | null;
+      canonical: string | null;
+      opengraphTitle: string | null;
+      opengraphDescription: string | null;
+      opengraphImage: { src: string; alt: string } | null;
+      metaRobotsNoindex: boolean | null;
+      metaRobotsNofollow: boolean | null;
+    };
+  };
+  relatedPosts: Array<{
+    title: string;
+    slug: string;
+    excerpt: string;
+    featuredImage: { src: string; alt: string } | null;
+    categories: Array<{ name: string; slug: string }>;
+    date: string;
+    readingTime: number;
+  }>;
+  tableOfContents: Array<{ id: string; text: string; level: number }>;
+  siteUrl: string;
+}
+
+const { post, relatedPosts, tableOfContents, siteUrl } = Astro.props;
+
+const canonicalURL = post.seo.canonical || `${siteUrl}/artigo/${post.slug}`;
+const ogImage = post.seo.opengraphImage?.src || post.featuredImage?.src;
+const ogTitle = post.seo.opengraphTitle || post.title;
+const ogDescription = post.seo.opengraphDescription || post.excerpt;
+const noindex = post.seo.metaRobotsNoindex || false;
+const nofollow = post.seo.metaRobotsNofollow || false;
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.title,
+  description: post.excerpt,
+  image: ogImage ? new URL(ogImage, siteUrl).toString() : undefined,
+  datePublished: post.date,
+  dateModified: post.modified,
+  author: {
+    '@type': 'Person',
+    name: post.author.name,
+    url: new URL(`/autor/${post.author.slug}`, siteUrl).toString(),
+  },
+  publisher: {
+    '@type': 'Organization',
+    name: 'Emagrecer',
+    logo: {
+      '@type': 'ImageObject',
+      url: new URL('/logo.png', siteUrl).toString(),
+    },
+  },
+  mainEntityOfPage: {
+    '@type': 'WebPage',
+    '@id': canonicalURL,
+  },
+};
+
+const breadcrumbItems = [
+  { label: 'Home', href: '/' },
+  { label: post.categories[0]?.name || 'Artigo', href: post.categories[0] ? `/categoria/${post.categories[0].slug}` : undefined },
+  { label: post.title },
+];
+---
+
+<MainLayout
+  title={post.seo.title || post.title}
+  description={post.seo.metaDesc || post.excerpt}
+  canonical={canonicalURL}
+  ogImage={ogImage}
+  ogTitle={ogTitle}
+  ogDescription={ogDescription}
+  schema={jsonLd}
+>
+  <!-- Breadcrumbs -->
+  <Container>
+    <Breadcrumb items={breadcrumbItems} />
+  </Container>
+
+  <!-- Grid Layout -->
+  <div class="max-w-container-max mx-auto px-margin-mobile md:px-gutter pb-section-gap">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <!-- Main Article Canvas -->
+      <article class="lg:col-span-8 flex flex-col items-center">
+        <!-- Header Section -->
+        <header class="w-full max-w-[720px] mb-12">
+          <div class="flex items-center gap-2 mb-6 flex-wrap">
+            {post.categories.slice(0, 2).map((category) => (
+              <span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-container font-label-caps text-label-caps rounded-full">
+                {category.name}
+              </span>
+            ))}
+          </div>
+          <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-6">
+            {post.title}
+          </h1>
+          <p class="font-body-lg text-body-lg text-on-surface-variant mb-8">
+            {post.excerpt}
+          </p>
+
+          <!-- Author Meta -->
+          <div class="flex items-center justify-between border-y border-outline-variant/30 py-4">
+            <div class="flex items-center space-x-4">
+              {post.author.avatar && (
+                <img
+                  class="w-12 h-12 rounded-full object-cover border border-outline-variant/30"
+                  src={post.author.avatar.src}
+                  alt={post.author.avatar.alt}
+                />
+              )}
+              <div>
+                <p class="font-body-md text-body-md text-on-surface font-semibold">{post.author.name}</p>
+                <p class="font-label-caps text-label-caps text-on-surface-variant">Nutricionista Funcional</p>
+              </div>
+            </div>
+            <div class="flex items-center space-x-6 text-on-surface-variant font-label-caps text-label-caps">
+              <span class="flex items-center">
+                <span class="material-symbols-outlined mr-1 text-[16px]" data-icon="calendar_today">calendar_today</span>
+                {formatDate(post.date)}
+              </span>
+              <span class="flex items-center">
+                <span class="material-symbols-outlined mr-1 text-[16px]" data-icon="schedule">schedule</span>
+                {formatReadingTime(post.readingTime)}
+              </span>
+            </div>
+          </div>
+        </header>
+
+        <!-- Featured Image -->
+        {post.featuredImage && (
+          <figure class="w-full max-w-[720px] mb-12">
+            <Image
+              src={post.featuredImage.src}
+              alt={post.featuredImage.alt}
+              width={post.featuredImage.width}
+              height={post.featuredImage.height}
+              class="w-full h-auto aspect-[16/9] object-cover rounded-xl premium-shadow"
+              priority
+            />
+            <figcaption class="mt-3 text-center font-label-caps text-label-caps text-on-surface-variant">
+              O jejum intermitente deve ser combinado com escolhas alimentares nutritivas durante a janela alimentar.
+            </figcaption>
+          </figure>
+        )}
+
+        <!-- Content Canvas -->
+        <div class="w-full max-w-[720px] font-body-lg text-body-lg text-on-surface prose prose-lg max-w-none article-content">
+          <p class="lead text-xl text-on-surface-variant">
+            {post.excerpt}
+          </p>
+
+          <!-- Table of Contents (Bento Style) -->
+          {tableOfContents.length > 0 && (
+            <nav class="my-10 p-8 bg-surface-container-low border border-outline-variant/30 rounded-xl premium-shadow">
+              <h3 class="font-headline-sm text-headline-sm mb-4 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-primary" data-icon="list_alt">list_alt</span> Neste Artigo
+              </h3>
+              <ul class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {tableOfContents.map((item) => (
+                  <li>
+                    <a class="flex items-center hover:text-primary transition-colors text-on-surface-variant font-body-md text-body-md" href={`#${item.id}`}>
+                      <span class="w-1.5 h-1.5 rounded-full bg-primary mr-2"></span>
+                      {item.text}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </nav>
+          )}
+
+          <!-- Article Content -->
+          <div set:html={post.content} />
+        </div>
+
+        <!-- Share & Actions Bottom -->
+        <div class="w-full max-w-[720px] mt-12 pt-8 border-t border-outline-variant/30 flex flex-col sm:flex-row items-center justify-between gap-6">
+          <div class="flex items-center gap-3">
+            <span class="font-body-md text-body-md font-semibold text-on-surface">Compartilhe:</span>
+            <button aria-label="Compartilhar no Twitter" class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-all bg-white">
+              <span class="material-symbols-outlined text-[20px]" data-icon="share">share</span>
+            </button>
+            <button aria-label="Compartilhar via Email" class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-all bg-white">
+              <span class="material-symbols-outlined text-[20px]" data-icon="mail">mail</span>
+            </button>
+            <button aria-label="Copiar Link" class="w-10 h-10 rounded-full border border-outline-variant flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary transition-all bg-white">
+              <span class="material-symbols-outlined text-[20px]" data-icon="link">link</span>
+            </button>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            {post.tags.slice(0, 3).map((tag) => (
+              <a class="px-4 py-2 bg-surface-container-low text-on-surface-variant font-label-caps text-label-caps rounded-full hover:bg-tertiary-fixed hover:text-primary transition-colors" href={`/tag/${tag.slug}`}>
+                #{tag.name}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <!-- End of Article Newsletter -->
+        <Newsletter
+          variant="minimal"
+          title="Junte-se a 50.000+ leitores"
+          description="Receba dicas exclusivas de nutrição e bem-estar diretamente na sua caixa de entrada toda semana."
+          placeholder="Seu melhor e-mail"
+          buttonText="Assinar Agora"
+        />
+      </article>
+
+      <!-- Sidebar (Desktop) -->
+      <aside class="hidden lg:block lg:col-span-4 space-y-12">
+        <ArticleSidebar
+          author={{
+            name: post.author.name,
+            description: 'Ajudando pessoas a encontrarem o equilíbrio através da alimentação consciente e baseada em evidências.',
+            avatar: post.author.avatar,
+            slug: post.author.slug,
+          }}
+          popularPosts={relatedPosts.slice(0, 3).map(p => ({
+            title: p.title,
+            slug: p.slug,
+            readingTime: p.readingTime,
+            featuredImage: p.featuredImage,
+            category: p.categories[0],
+          }))}
+          categories={[
+            { name: 'Nutrição', slug: 'nutricao', count: 42 },
+            { name: 'Receitas', slug: 'receitas', count: 85 },
+            { name: 'Metabolismo', slug: 'metabolismo', count: 18 },
+            { name: 'Longevidade', slug: 'longevidade', count: 12 },
+          ]}
+        />
+      </aside>
+    </div>
+
+    <!-- Related Articles Grid -->
+    {relatedPosts.length > 0 && (
+      <section class="mt-24 border-t border-outline-variant/30 pt-16">
+        <div class="flex items-center justify-between mb-8">
+          <h2 class="font-headline-md text-headline-md text-on-surface">Artigos Relacionados</h2>
+          <a class="hidden md:flex items-center text-primary font-body-md text-body-md font-semibold hover:underline" href="/artigos">
+            Ver mais <span class="material-symbols-outlined ml-1" data-icon="arrow_forward">arrow_forward</span>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {relatedPosts.map((post) => (
+            <a class="group block bg-white border border-outline-variant/30 rounded-xl overflow-hidden premium-shadow hover:shadow-lg transition-shadow duration-300" href={`/artigo/${post.slug}`}>
+              <img class="w-full h-48 object-cover" src={post.featuredImage?.src || 'https://via.placeholder.com/400x225'} alt={post.featuredImage?.alt || post.title} />
+              <div class="p-6">
+                <span class="font-label-caps text-label-caps text-primary mb-2 block">{post.categories[0]?.name || 'Artigo'}</span>
+                <h3 class="font-headline-sm text-headline-sm text-on-surface mb-3 group-hover:text-primary transition-colors">{post.title}</h3>
+                <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">{post.excerpt}</p>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+    )}
+  </div>
+</MainLayout>

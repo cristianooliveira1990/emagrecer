@@ -1,0 +1,50 @@
+---
+import Image from '../ui/Image.astro';
+import Container from '../ui/Container.astro';
+
+interface Props {
+  title: string;
+  subtitle: string;
+  ctaText: string;
+  ctaHref: string;
+  image: {
+    src: string;
+    alt: string;
+    width: number;
+    height: number;
+  };
+  class?: string;
+}
+
+const { title, subtitle, ctaText, ctaHref, image, class: className = '' } = Astro.props;
+---
+
+<section class:list={['max-w-container-max mx-auto px-margin-mobile md:px-gutter py-section-gap grid grid-cols-1 md:grid-cols-12 gap-gutter items-center', className]}>
+  <div class="md:col-span-6 space-y-8 pr-0 md:pr-12">
+    <h1 class="font-display-lg-mobile text-display-lg-mobile md:font-display-lg md:text-display-lg text-on-background">
+      {title}
+    </h1>
+    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-[540px]">
+      {subtitle}
+    </p>
+    <div class="pt-4">
+      <a
+        href={ctaHref}
+        class="inline-flex items-center space-x-2 font-body-md text-body-md px-8 py-3 bg-primary hover:bg-primary-container text-on-primary rounded-lg transition-all duration-300"
+      >
+        <span>{ctaText}</span>
+        <span class="material-symbols-outlined text-[20px]" data-icon="arrow_forward">arrow_forward</span>
+      </a>
+    </div>
+  </div>
+  <div class="md:col-span-6 mt-12 md:mt-0 relative rounded-xl overflow-hidden premium-shadow">
+    <Image
+      src={image.src}
+      alt={image.alt}
+      width={image.width}
+      height={image.height}
+      class="w-full h-auto object-cover rounded-xl aspect-[4/3] transform hover:scale-105 transition-transform duration-700 ease-in-out"
+      priority
+    />
+  </div>
+</section>

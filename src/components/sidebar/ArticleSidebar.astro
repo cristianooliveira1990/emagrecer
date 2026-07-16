@@ -1,0 +1,88 @@
+---
+interface Props {
+  authorInfo?: {
+    name: string;
+    description: string;
+    avatar: { src: string; alt: string } | null;
+    slug: string;
+  };
+  topPosts?: Array<{
+    title: string;
+    slug: string;
+    readingTime: number;
+    featuredImage: { src: string; alt: string } | null;
+    category: { name: string; slug: string };
+  }>;
+  topics?: Array<{ name: string; slug: string; count: number }>;
+}
+
+const { authorInfo, topPosts = [], topics = [] } = Astro.props;
+---
+
+<aside class="hidden lg:block lg:col-span-4 space-y-12">
+  {authorInfo && (
+    <div class="p-6 bg-white border border-outline-variant/30 rounded-xl premium-shadow text-center">
+      {authorInfo.avatar && (
+        <img
+          class="w-24 h-24 mx-auto rounded-full object-cover mb-4"
+          src={authorInfo.avatar.src}
+          alt={authorInfo.avatar.alt}
+        />
+      )}
+      <h4 class="font-headline-sm text-headline-sm text-on-surface mb-1">{authorInfo.name}</h4>
+      <p class="font-label-caps text-label-caps text-primary mb-4">Especialista em Nutrição</p>
+      <p class="font-body-md text-body-md text-on-surface-variant mb-6">
+        {authorInfo.description}
+      </p>
+      <a
+        href={`/autor/${authorInfo.slug}`}
+        class="w-full px-4 py-2 border border-outline-variant text-on-surface font-body-md text-body-md rounded-lg hover:border-primary hover:text-primary transition-colors"
+      >
+        Conhecer a Autora
+      </a>
+    </div>
+  )}
+
+  {topPosts.length > 0 && (
+    <div>
+      <h4 class="font-headline-sm text-headline-sm text-on-surface mb-6 border-b border-outline-variant/30 pb-2">Artigos Populares</h4>
+      <ul class="space-y-6">
+        {topPosts.map((p) => (
+          <li class="flex gap-4 group cursor-pointer">
+            {p.featuredImage && (
+              <img
+                class="w-20 h-20 rounded-lg object-cover bg-surface-container"
+                src={p.featuredImage.src}
+                alt={p.featuredImage.alt}
+              />
+            )}
+            <div>
+              <h5 class="font-body-md text-body-md font-semibold text-on-surface group-hover:text-primary transition-colors line-clamp-2">
+                {p.title}
+              </h5>
+              <span class="font-label-caps text-label-caps text-on-surface-variant mt-2 inline-block">
+                {p.readingTime} min de leitura
+              </span>
+            </div>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {topics.length > 0 && (
+    <div>
+      <h4 class="font-headline-sm text-headline-sm text-on-surface mb-6 border-b border-outline-variant/30 pb-2">Explorar Tópicos</h4>
+      <div class="flex flex-wrap gap-2">
+        {topics.map((t) => (
+          <a
+            href={`/categoria/${t.slug}`}
+            class="px-4 py-2 bg-surface text-on-surface-variant border border-outline-variant font-label-caps text-label-caps rounded-full hover:border-primary hover:text-primary transition-colors"
+          >
+            {t.name} ({t.count})
+          </a>
+        ))}
+      </div>
+    </div>
+  )}
+</aside>

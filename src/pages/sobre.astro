@@ -1,0 +1,118 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import Section from '../components/ui/Section.astro';
+import Container from '../components/ui/Container.astro';
+
+const canonicalURL = 'https://emagrecer.xx.kg/sobre';
+---
+
+<MainLayout
+  title="Sobre Nós - Emagrecer"
+  description="Conheça a missão, valores e a equipe por trás do Emagrecer, seu hub diário para nutrição baseada em evidências, saúde mental e movimento consciente."
+  canonical={canonicalURL}
+>
+  <Container maxWidth="prose">
+    <Section padding="xl">
+      <header class="mb-12 text-center max-w-3xl mx-auto">
+        <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-6">
+          Sobre Nós
+        </h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant">
+          Sua jornada saudável começa com informação confiável e baseada em evidências.
+        </p>
+      </header>
+
+      <div class="space-y-10 max-w-3xl mx-auto">
+        <article class="prose prose-lg max-w-none">
+          <h2 class="font-headline-md text-headline-md text-on-surface mb-4">Nossa Missão</h2>
+          <p class="font-body-lg text-body-lg text-on-surface mb-6">
+            O <strong>Emagrecer</strong> nasceu da necessidade de criar um espaço onde a ciência da nutrição, do exercício e do bem-estar mental se encontram de forma acessível, prática e respeitosa.
+          </p>
+          <p class="font-body-lg text-body-lg text-on-surface mb-6">
+            Acreditamos que emagrecer não deve ser sinônimo de sofrimento, restrições extremas ou dietas da moda. Nosso compromisso é com a <strong>saúde sustentável</strong>, o <strong>equilíbrio</strong> e a <strong>autonomia</strong> de cada pessoa em sua jornada.
+          </p>
+
+          <h2 class="font-headline-md text-headline-md text-on-surface mb-4">Nossos Valores</h2>
+          <ul class="space-y-4 font-body-lg text-body-lg text-on-surface">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-primary mt-1" data-icon="verified">verified</span>
+              <span><strong>Evidência Científica:</strong> Todo conteúdo é revisado por profissionais qualificados e baseado em estudos atuais.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-primary mt-1" data-icon="favorite">favorite</span>
+              <span><strong>Empatia e Respeito:</strong> Cada corpo é único. Não existe abordagem única para todos.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-primary mt-1" data-icon="transparency">transparency</span>
+              <span><strong>Transparência:</strong> Sem promessas milagrosas, sem produtos milagrosos. Apenas informação honesta.</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-primary mt-1" data-icon="school">school</span>
+              <span><strong>Educação Contínua:</strong> Queremos que você aprenda a fazer escolhas conscientes para a vida toda.</span>
+            </li>
+          </ul>
+
+          <h2 class="font-headline-md text-headline-md text-on-surface mb-4 mt-10">Nossa Equipe</h2>
+          <p class="font-body-lg text-body-lg text-on-surface mb-6">
+            Contamos com nutricionistas, educadores físicos, psicólogos e jornalistas especializados em saúde que trabalham juntos para trazer o melhor conteúdo.
+          </p>
+
+          <h2 class="font-headline-md text-headline-md text-on-surface mb-4 mt-10">Compromisso Editorial</h2>
+          <p class="font-body-lg text-body-lg text-on-surface mb-4">
+            Todos os artigos passam por rigoroso processo de revisão:
+          </p>
+          <ol class="list-decimal list-inside space-y-3 font-body-lg text-body-lg text-on-surface pl-4">
+            <li>Pesquisa baseada em fontes confiáveis (PubMed, Cochrane, diretrizes oficiais)</li>
+            <li>Redação por especialistas da área</li>
+            <li>Revisão técnica por profissional qualificado</li>
+            <li>Atualização periódica conforme novas evidências surgem</li>
+          </ol>
+        </article>
+
+        <!-- Team Section -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mt-12">
+          <div class="text-center p-6 bg-surface rounded-xl border border-surface-variant premium-shadow">
+            <div class="w-24 h-24 mx-auto rounded-full bg-secondary-container mb-4 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary text-[48px]" data-icon="person">person</span>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Dra. Clara Mendes</h3>
+            <p class="font-label-caps text-label-caps text-primary mb-2">Nutricionista Funcional</p>
+            <p class="font-body-md text-body-md text-on-surface-variant">Especialista em nutrição comportamental e jejum intermitente.</p>
+          </div>
+          <div class="text-center p-6 bg-surface rounded-xl border border-surface-variant premium-shadow">
+            <div class="w-24 h-24 mx-auto rounded-full bg-secondary-container mb-4 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary text-[48px]" data-icon="fitness_center">fitness_center</span>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Prof. Rafael Santos</h3>
+            <p class="font-label-caps text-label-caps text-primary mb-2">Educador Físico</p>
+            <p class="font-body-md text-body-md text-on-surface-variant">Mestre em fisiologia do exercício e performance humana.</p>
+          </div>
+          <div class="text-center p-6 bg-surface rounded-xl border border-surface-variant premium-shadow">
+            <div class="w-24 h-24 mx-auto rounded-full bg-secondary-container mb-4 flex items-center justify-center">
+              <span class="material-symbols-outlined text-primary text-[48px]" data-icon="psychology">psychology</span>
+            </div>
+            <h3 class="font-headline-sm text-headline-sm text-on-surface mb-1">Dra. Ana Costa</h3>
+            <p class="font-label-caps text-label-caps text-primary mb-2">Psicóloga Clínica</p>
+            <p class="font-body-md text-body-md text-on-surface-variant">Especialista em comportamento alimentar e mindfulness.</p>
+          </div>
+        </div>
+      </div>
+    </Section>
+
+    <!-- CTA Section -->
+    <Section padding="xl" background="container-low">
+      <Container maxWidth="content">
+        <div class="text-center">
+          <h2 class="font-headline-md text-headline-md text-on-surface mb-4">Pronto para começar?</h2>
+          <p class="font-body-lg text-body-lg text-on-surface-variant mb-8 max-w-xl mx-auto">
+            Junte-se a milhares de pessoas que estão transformando sua relação com a comida, o corpo e a mente.
+          </p>
+          <a href="/newsletter" class="inline-flex items-center gap-2 px-8 py-3 bg-primary hover:bg-primary-container text-on-primary font-body-md text-body-md rounded-lg transition-all">
+            Assinar Newsletter Gratuita
+            <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+          </a>
+        </div>
+      </Container>
+    </Section>
+  </Container>
+</MainLayout>

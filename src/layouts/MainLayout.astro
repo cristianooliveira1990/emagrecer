@@ -1,0 +1,135 @@
+---
+import Header from '../components/layout/Header.astro';
+import Footer from '../components/layout/Footer.astro';
+
+interface Props {
+  title: string;
+  description?: string;
+  canonical?: string;
+  ogImage?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  twitterCard?: 'summary' | 'summary_large_image';
+  schema?: Record<string, unknown>;
+  children: AstroHTMLAttributes<'main'>['children'];
+}
+
+const {
+  title,
+  description = 'Sua jornada saudável para emagrecimento, nutrição, treinos e bem-estar.',
+  canonical,
+  ogImage,
+  ogTitle,
+  ogDescription,
+  twitterCard = 'summary_large_image',
+  schema,
+  children,
+} = Astro.props;
+
+const siteName = import.meta.env.PUBLIC_SITE_NAME || 'Emagrecer';
+const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://emagrecer.xx.kg';
+const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).toString();
+const ogTitleText = ogTitle || title;
+const ogDescriptionText = ogDescription || description;
+const ogImageUrl = ogImage || new URL('/og-default.jpg', siteUrl).toString();
+---
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="canonical" href={canonicalUrl} />
+
+    <!-- Primary Meta Tags -->
+    <title>{title}</title>
+    <meta name="title" content={title} />
+    <meta name="description" content={description} />
+    <meta name="keywords" content="emagrecimento, nutrição, treinos, saúde, bem-estar, receitas saudáveis, jejum intermitente" />
+    <meta name="author" content="Emagrecer" />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:title" content={ogTitleText} />
+    <meta property="og:description" content={ogDescriptionText} />
+    <meta property="og:image" content={ogImageUrl} />
+    <meta property="og:site_name" content={siteName} />
+    <meta property="og:locale" content="pt_BR" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content={twitterCard} />
+    <meta property="twitter:url" content={canonicalUrl} />
+    <meta property="twitter:title" content={ogTitleText} />
+    <meta property="twitter:description" content={ogDescriptionText} />
+    <meta property="twitter:image" content={ogImageUrl} />
+    <meta property="twitter:site" content="@emagrecerxxkg" />
+
+    <!-- JSON-LD Schema -->
+    {schema && (
+      <script type="application/ld+json" set:html={JSON.stringify(schema)} />
+    )}
+
+    <!-- Preconnect to external resources -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="preconnect" href="https://lh3.googleusercontent.com" />
+
+    <!-- Fonts -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" media="print" onload="this.media='all'" />
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" media="print" onload="this.media='all'" />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+
+    <!-- RSS Feed -->
+    <link rel="alternate" type="application/rss+xml" title="Emagrecer - Feed RSS" href="/rss.xml" />
+
+    <!-- Google Analytics -->
+    <script is:inline>
+      // Google Analytics will be injected via Vercel env vars
+    </script>
+  </head>
+  <body class="bg-background text-on-background antialiased flex flex-col min-h-screen">
+    <!-- View Transitions -->
+    <script>
+      if (!document.startViewTransition) {
+        document.documentElement.classList.add('no-view-transitions');
+      }
+    </script>
+
+    <Header
+      navigation={[
+        { label: 'Início', href: '/' },
+        { label: 'Nutrição', href: '/categoria/nutricao' },
+        { label: 'Treino', href: '/categoria/treino' },
+        { label: 'Mente', href: '/categoria/mente' },
+        { label: 'Saúde', href: '/categoria/saude' },
+      ]}
+      newsletterHref="/newsletter"
+    />
+
+    <main class="flex-grow pt-[120px]">
+      {children}
+    </main>
+
+    <Footer />
+
+    <!-- Pagefind Search UI -->
+    <script is:inline>
+      // Pagefind initialization will be added in search page
+    </script>
+
+    <!-- Smooth scroll polyfill -->
+    <script is:inline>
+      // Smooth scroll behavior
+      document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
+  </body>
+</html>

@@ -1,0 +1,36 @@
+# robots.txt for Emagrecer
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://emagrecer.xx.kg/sitemap-index.xml
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 10
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_astro/
+Disallow: /node_modules/
+Disallow: /*.json$
+Disallow: /*.xml$ (except sitemap)
+Disallow: /search?
+Disallow: /busca?
+Disallow: /newsletter
+Disallow: /contato?success=
+Disallow: /artigo/*/amp/
+Disallow: /artigo/*/amp
+
+# Allow specific bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: DuckDuckBot
+Allow: /
+
+# Host
+Host: https://emagrecer.xx.kg

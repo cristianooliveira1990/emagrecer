@@ -1,0 +1,1 @@
+export { default as ArticleSidebar } from './ArticleSidebar.astro';

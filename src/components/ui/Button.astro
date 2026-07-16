@@ -1,0 +1,57 @@
+---
+interface Props {
+  children: AstroHTMLAttributes<'button'>['children'];
+  variant?: 'primary' | 'secondary' | 'outline';
+  size?: 'sm' | 'md' | 'lg';
+  href?: string;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+  class?: string;
+  onClick?: () => void;
+}
+
+const { children, variant = 'primary', size = 'md', href, type = 'button', disabled = false, class: className = '', onClick } = Astro.props;
+
+const baseClasses = 'inline-flex items-center justify-center font-semibold transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+const disabledClasses = disabled ? 'opacity-50 pointer-events-none cursor-not-allowed' : '';
+const variantClasses = {
+  primary: 'bg-primary text-on-primary hover:bg-primary-container focus:ring-primary',
+  secondary: 'bg-surface text-on-surface border border-outline-variant hover:border-primary hover:text-primary focus:ring-primary',
+  outline: 'bg-transparent text-primary border-2 border-primary hover:bg-primary hover:text-on-primary focus:ring-primary',
+}[variant] || '';
+const sizeClasses = {
+  sm: 'px-4 py-2 text-label-caps rounded-lg',
+  md: 'px-6 py-3 text-body-md rounded-xl',
+  lg: 'px-8 py-4 text-body-lg rounded-xl',
+}[size] || '';
+const allClasses = [baseClasses, disabledClasses, variantClasses, sizeClasses, className].filter(Boolean).join(' ');
+
+function handleClick(event: Event) {
+  if (disabled) {
+    event.preventDefault();
+    return;
+  }
+  if (onClick) onClick();
+}
+---
+
+{href ? (
+  <a
+    href={href}
+    class={allClasses}
+    onclick={handleClick}
+    aria-disabled={disabled}
+  >
+    {children}
+  </a>
+) : (
+  <button
+    type={type}
+    class={allClasses}
+    onclick={handleClick}
+    disabled={disabled}
+    aria-disabled={disabled}
+  >
+    {children}
+  </button>
+)}

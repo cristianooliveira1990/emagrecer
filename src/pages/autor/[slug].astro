@@ -1,0 +1,128 @@
+---
+import MainLayout from '../../layouts/MainLayout.astro';
+import ArticleCard from '../../components/article/ArticleCard.astro';
+import Section from '../../components/ui/Section.astro';
+import Container from '../../components/ui/Container.astro';
+import { wpClient } from '../../services/wp-graphql';
+
+export async function getStaticPaths() {
+  try {
+    const authors = await wpClient.getAuthors(100);
+    return authors.map((author) => ({
+      params: { slug: author.slug },
+      props: { author },
+    }));
+  } catch (error) {
+    console.warn('Failed to fetch authors from WordPress for static paths:', error);
+    return [];
+  }
+}
+
+interface Props {
+  author: {
+    name: string;
+    slug: string;
+    description: string;
+    avatar: { src: string; alt: string } | null;
+    postCount: number;
+  };
+  posts: {
+    posts: Array<{
+      title: string;
+      slug: string;
+      excerpt: string;
+      date: string;
+      featuredImage: { src: string; alt: string } | null;
+      categories: Array<{ name: string; slug: string }>;
+      readingTime: number;
+    }>;
+    pageInfo: { hasNextPage: boolean; hasPreviousPage: boolean };
+  };
+  currentPage: number;
+  siteUrl: string;
+}
+
+const { author, posts, currentPage, siteUrl } = Astro.props;
+
+const canonicalURL = `${siteUrl}/autor/${author.slug}${currentPage > 1 ? `/pagina/${currentPage}` : ''}`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Person',
+  name: author.name,
+  url: canonicalURL,
+  description: author.description,
+  image: author.avatar?.src ? new URL(author.avatar.src, siteUrl).toString() : undefined,
+  worksFor: {
+    '@type': 'Organization',
+    name: 'Emagrecer',
+    url: siteUrl,
+  },
+};
+---
+
+<MainLayout
+  title={`${author.name} - Emagrecer`}
+  description={author.description || `Artigos por ${author.name} no Emagrecer`}
+  canonical={canonicalURL}
+  schema={jsonLd}
+>
+  <Container maxWidth="prose">
+    <!-- Author Header -->
+    <header class="mb-12">
+      <div class="flex flex-col md:flex-row items-center md:items-start gap-8 mb-8">
+        {author.avatar && (
+          <img
+            class="w-32 h-32 md:w-40 md:h-40 rounded-full object-cover border-4 border-surface"
+            src={author.avatar.src}
+            alt={author.avatar.alt}
+          />
+        )}
+        <div class="text-center md:text-left flex-1">
+          <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-2">
+            {author.name}
+          </h1>
+          <p class="font-label-caps text-label-caps text-primary mb-4">Nutricionista Funcional</p>
+          <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+            {author.description}
+          </p>
+          <div class="mt-4 font-body-md text-body-md text-on-surface-variant">
+            {author.postCount} artigo{author.postCount !== 1 ? 's' : ''} publicado{author.postCount !== 1 ? 's' : ''}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Posts Grid -->
+    {posts.posts.length > 0 ? (
+      <Section padding="none">
+        <h2 class="font-headline-md text-headline-md text-on-surface mb-8">Artigos Recentes</h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {posts.posts.map((post) => (
+            <ArticleCard post={post} variant="default" />
+          ))}
+        </div>
+
+        <!-- Pagination -->
+        {posts.pageInfo.hasNextPage && (
+          <nav class="mt-12 flex justify-center" aria-label="Paginação">
+            <a
+              href={`/autor/${author.slug}/pagina/${currentPage + 1}`}
+              class="inline-flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary-container text-on-primary font-label-caps text-label-caps rounded-lg transition-all"
+            >
+              Próximos artigos
+              <span class="material-symbols-outlined" data-icon="chevron_right">chevron_right</span>
+            </a>
+          </nav>
+        )}
+      </Section>
+    ) : (
+      <Section padding="xl">
+        <div class="text-center py-16">
+          <span class="material-symbols-outlined text-[64px] text-outline-variant mb-4" data-icon="article">article</span>
+          <h2 class="font-headline-sm text-headline-sm text-on-surface mb-2">Nenhum artigo encontrado</h2>
+          <p class="font-body-md text-body-md text-on-surface-variant">Este autor ainda não publicou artigos.</p>
+        </div>
+      </Section>
+    )}
+  </Container>
+</MainLayout>

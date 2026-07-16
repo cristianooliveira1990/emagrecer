@@ -1,0 +1,29 @@
+---
+import { classNames } from '../../utils/helpers';
+
+interface Props {
+  items: Array<{ label: string; href?: string }>;
+  class?: string;
+}
+
+const { items, class: className = '' } = Astro.props;
+---
+
+<nav aria-label="Navegação estrutural" class:list={['flex items-center space-x-2 text-on-surface-variant font-label-caps text-label-caps mb-8', className]}>
+  {items.map((item, index) => (
+    <>
+      {item.href ? (
+        <a href={item.href} class="hover:text-primary transition-colors">
+          {item.label}
+        </a>
+      ) : (
+        <span class="text-on-surface" aria-current="page">
+          {item.label}
+        </span>
+      )}
+      {index < items.length - 1 && (
+        <span class="material-symbols-outlined text-[16px]" data-icon="chevron_right">chevron_right</span>
+      )}
+    </>
+  ))}
+</nav>

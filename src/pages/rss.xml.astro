@@ -1,0 +1,41 @@
+---
+import rss from '@astrojs/rss';
+import { getCollection } from 'astro:content';
+
+export async function GET(context) {
+  const posts = await getCollection('blog');
+  
+  // Sort by date descending
+  posts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+  
+  // Take latest 50 posts
+  const recentPosts = posts.slice(0, 50);
+  
+  return rss({
+    title: 'Emagrecer',
+    description: 'Sua jornada saudável para emagrecimento, nutrição, treinos e bem-estar',
+    site: context.site,
+    items: recentPosts.map((post) => ({
+      title: post.data.title,
+      description: post.data.excerpt,
+      link: `/artigo/${post.slug}`,
+      pubDate: post.data.date,
+      author: post.data.author?.name || 'Equipe Emagrecer',
+      categories: post.data.categories?.map(c => c.name) || [],
+      enclosure: post.data.featuredImage ? {
+        url: post.data.featuredImage.src,
+        type: 'image/jpeg',
+      } : undefined,
+    })),
+    customData: `
+      <language>pt-BR</language>
+      <atom:link href="${context.site}rss.xml" rel="self" type="application/rss+xml" />
+      <image>
+        <url>${context.site}/logo.png</url>
+        <title>Emagrecer</title>
+        <link>${context.site}</link>
+      </image>
+    `,
+  });
+}
+---
