@@ -7,7 +7,7 @@ import Section from '../components/ui/Section.astro';
 import Container from '../components/ui/Container.astro';
 import { wpClient } from '../services/wp-graphql';
 
-let featuredPosts: any[] = [];
+let latestPost: any = null;
 let latestPosts: any[] = [];
 try {
   const result = await wpClient.getPosts(10);
@@ -15,17 +15,10 @@ try {
     ...p,
     categories: p.categories?.nodes || [],
   }));
-  featuredPosts = posts.slice(0, 4);
-  latestPosts = posts.slice(4, 10);
+  latestPost = posts[0] || null;
+  latestPosts = posts.slice(1, 10);
 } catch (e) {
   console.warn('Failed to fetch posts from WordPress:', e);
-}
-
-let categories: Array<{ name: string; slug: string; count: number }> = [];
-try {
-  categories = await wpClient.getCategories(100);
-} catch (e) {
-  console.warn('Failed to fetch categories from WordPress:', e);
 }
 ---
 
@@ -33,39 +26,20 @@ try {
   title="Emagrecer - Sua Jornada Saudável"
   description="Descubra artigos fundamentados em ciência sobre nutrição, bem-estar mental e treinos que respeitam o seu corpo. Encontre o equilíbrio que você merece."
 >
-  <Hero
-    title="Inicie sua jornada para uma vida mais leve e saudável."
-    subtitle="Descubra artigos fundamentados em ciência sobre nutrição, bem-estar mental e treinos que respeitam o seu corpo. Encontre o equilíbrio que você merece."
-    ctaText="Começar Agora"
-    ctaHref="/categoria/nutricao"
-    image={{
-      src: 'https://lh3.googleusercontent.com/aida-public/AB6AXuBeAPVCHLmcj04rh512Eg7KKdm-_HTyrah04RntIDA7SWTm3ZrwtxFHkCVxJjoo8FCIf_IgfFi1nEWJIxrBVtwOTuqTuvl3BXOsWzp8tPGCi-XlVkrAWZqykrFnYXLb3EUmtl_D6CBJlAfFC4wYICtojcZulGlSZgY1qbVVhwbj6mV9x5DDD46NykpXKN-SZAykmPFJFfLaUWD3EQ5pFjXoP3bAkjqdVgJNX0jCwhPK_ME320L_Eu9t9RZh9tmr0W7N4QzLIZ4BPAs',
-      alt: 'Cozinha minimalista com alimentos saudáveis',
-      width: 800,
-      height: 600,
-    }}
-  />
-
-  <Section padding="xl" background="container-low">
-    <Container>
-      <div class="flex justify-between items-end mb-12 border-b border-outline-variant/20 pb-4">
-        <h2 class="font-headline-md text-headline-md text-on-background">Destaques da Semana</h2>
-        <a href="/artigos" class="font-body-md text-body-md text-primary hover:text-primary-container transition-colors inline-flex items-center space-x-1">
-          <span>Ver todos</span>
-          <span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
-        </a>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
-        {featuredPosts[0] && <ArticleCard post={featuredPosts[0]} variant="featured" />}
-        <div class="md:col-span-4 space-y-gutter">
-          {featuredPosts.slice(1, 3).map((post) => <ArticleCard post={post} variant="vertical" />)}
-        </div>
-        <div class="md:col-span-8 space-y-gutter">
-          {featuredPosts.slice(3, 5).map((post) => <ArticleCard post={post} variant="horizontal" />)}
-        </div>
-      </div>
-    </Container>
-  </Section>
+  {latestPost && (
+    <Hero
+      title={latestPost.title}
+      subtitle={latestPost.excerpt?.replace(/<[^>]*>/g, '') || ''}
+      ctaText="Ler Artigo"
+      ctaHref={`/artigo/${latestPost.slug}`}
+      image={{
+        src: latestPost.featuredImage?.node?.sourceUrl || '',
+        alt: latestPost.featuredImage?.node?.altText || latestPost.title,
+        width: latestPost.featuredImage?.node?.mediaDetails?.width || 800,
+        height: latestPost.featuredImage?.node?.mediaDetails?.height || 600,
+      }}
+    />
+  )}
 
   <Section padding="xl">
     <Container>
@@ -78,31 +52,6 @@ try {
       </div>
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {latestPosts.map((post) => <ArticleCard post={post} variant="default" />)}
-      </div>
-    </Container>
-  </Section>
-
-  <Section padding="xl" background="container-low">
-    <Container>
-      <div class="flex justify-between items-end mb-12 border-b border-outline-variant/20 pb-4">
-        <h2 class="font-headline-md text-headline-md text-on-background">Explorar por Categoria</h2>
-        <a href="/categorias" class="font-body-md text-body-md text-primary hover:text-primary-container transition-colors inline-flex items-center space-x-1">
-          <span>Ver todas</span>
-          <span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
-        </a>
-      </div>
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {categories.map((category) => (
-          <a href={`/categoria/${category.slug}`} class="group block p-6 bg-surface rounded-xl border border-surface-variant premium-shadow hover:shadow-lg transition-shadow">
-            <div class="flex items-center justify-between mb-4">
-              <span class="font-label-caps text-label-caps text-primary">{category.name}</span>
-              <span class="material-symbols-outlined text-outline group-hover:text-primary transition-colors" data-icon="chevron_right">chevron_right</span>
-            </div>
-            <p class="font-body-md text-body-md text-on-surface-variant">
-              {category.count} artigos
-            </p>
-          </a>
-        ))}
       </div>
     </Container>
   </Section>
