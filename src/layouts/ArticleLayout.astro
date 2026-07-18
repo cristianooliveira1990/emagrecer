@@ -15,27 +15,33 @@ interface Props {
     date: string;
     modified: string;
     featuredImage: {
-      src: string;
-      alt: string;
-      width: number;
-      height: number;
-    } | null;
+      node: {
+        sourceUrl: string;
+        altText: string | null;
+        mediaDetails?: {
+          width: number;
+          height: number;
+        };
+      } | null;
+    };
     author: {
-      name: string;
-      slug: string;
-      description: string;
-      avatar: { src: string; alt: string } | null;
+      node: {
+        name: string;
+        slug: string;
+        description: string;
+        avatar: { url: string } | null;
+      };
     };
     categories: Array<{ name: string; slug: string }>;
     tags: Array<{ name: string; slug: string }>;
-    readingTime: number;
-    seo: {
+    readingTime?: number;
+    seo?: {
       title: string | null;
       metaDesc: string | null;
       canonical: string | null;
       opengraphTitle: string | null;
       opengraphDescription: string | null;
-      opengraphImage: { src: string; alt: string } | null;
+      opengraphImage: { sourceUrl: string; altText: string | null } | null;
       metaRobotsNoindex: boolean | null;
       metaRobotsNofollow: boolean | null;
     };
@@ -44,10 +50,19 @@ interface Props {
     title: string;
     slug: string;
     excerpt: string;
-    featuredImage: { src: string; alt: string } | null;
+    featuredImage: {
+      node: {
+        sourceUrl: string;
+        altText: string | null;
+        mediaDetails?: {
+          width: number;
+          height: number;
+        };
+      } | null;
+    };
     categories: Array<{ name: string; slug: string }>;
     date: string;
-    readingTime: number;
+    readingTime?: number;
   }>;
   tableOfContents: Array<{ id: string; text: string; level: number }>;
   siteUrl: string;
@@ -55,12 +70,12 @@ interface Props {
 
 const { post, relatedPosts, tableOfContents, siteUrl } = Astro.props;
 
-const canonicalURL = post.seo.canonical || `${siteUrl}/artigo/${post.slug}`;
-const ogImage = post.seo.opengraphImage?.src || post.featuredImage?.src;
-const ogTitle = post.seo.opengraphTitle || post.title;
-const ogDescription = post.seo.opengraphDescription || post.excerpt;
-const noindex = post.seo.metaRobotsNoindex || false;
-const nofollow = post.seo.metaRobotsNofollow || false;
+const canonicalURL = post.seo?.canonical || `${siteUrl}/artigo/${post.slug}`;
+const ogImage = post.seo?.opengraphImage?.sourceUrl || post.featuredImage?.node?.sourceUrl;
+const ogTitle = post.seo?.opengraphTitle || post.title;
+const ogDescription = post.seo?.opengraphDescription || post.excerpt;
+const noindex = post.seo?.metaRobotsNoindex || false;
+const nofollow = post.seo?.metaRobotsNofollow || false;
 
 const jsonLd = {
   '@context': 'https://schema.org',
@@ -97,8 +112,8 @@ const breadcrumbItems = [
 ---
 
 <MainLayout
-  title={post.seo.title || post.title}
-  description={post.seo.metaDesc || post.excerpt}
+  title={post.seo?.title || post.title}
+  description={post.seo?.metaDesc || post.excerpt}
   canonicalURL={canonicalURL}
   ogImage={ogImage}
   ogType="article"
@@ -132,15 +147,15 @@ const breadcrumbItems = [
         <!-- Author Meta -->
         <div class="flex items-center justify-between border-y border-outline-variant/30 py-4">
           <div class="flex items-center space-x-4">
-            {#if post.author.avatar}
+            {#if post.author.node.avatar}
             <img
               class="w-12 h-12 rounded-full object-cover border border-outline-variant/30"
-              src={post.author.avatar.src}
-              alt={post.author.avatar.alt}
+              src={post.author.node.avatar.url}
+              alt={post.author.node.name}
             />
             {/if}
             <div>
-              <p class="font-body-md text-body-md text-on-surface font-semibold">{post.author.name}</p>
+              <p class="font-body-md text-body-md text-on-surface font-semibold">{post.author.node.name}</p>
               <p class="font-label-caps text-label-caps text-on-surface-variant">Nutricionista Funcional</p>
             </div>
           </div>
@@ -151,20 +166,20 @@ const breadcrumbItems = [
             </span>
             <span class="flex items-center">
               <span class="material-symbols-outlined mr-1 text-[16px]" data-icon="schedule">schedule</span>
-              {formatReadingTime(post.readingTime)}
+              {formatReadingTime(post.readingTime ?? 5)}
             </span>
           </div>
         </div>
       </header>
 
       <!-- Featured Image -->
-      {#if post.featuredImage}
+      {#if post.featuredImage?.node}
       <figure class="w-full mb-12">
         <Image
-          src={post.featuredImage.src}
-          alt={post.featuredImage.alt}
-          width={post.featuredImage.width}
-          height={post.featuredImage.height}
+          src={post.featuredImage.node.sourceUrl}
+          alt={post.featuredImage.node.altText || ''}
+          width={post.featuredImage.node.mediaDetails?.width}
+          height={post.featuredImage.node.mediaDetails?.height}
           class="w-full h-auto aspect-[16/9] object-cover rounded-xl premium-shadow"
           priority
         />
@@ -232,8 +247,19 @@ const breadcrumbItems = [
 
     <!-- Sidebar (Desktop) -->
     <ArticleSidebar
-      author={post.author}
-      popularPosts={relatedPosts.slice(0, 3)}
+      authorInfo={{
+        name: post.author.node.name,
+        description: post.author.node.description,
+        avatar: post.author.node.avatar ? { src: post.author.node.avatar.url, alt: post.author.node.name } : null,
+        slug: post.author.node.slug,
+      }}
+      topPosts={relatedPosts.slice(0, 3).map(p => ({
+        title: p.title,
+        slug: p.slug,
+        readingTime: p.readingTime ?? 5,
+        featuredImage: p.featuredImage?.node ? { src: p.featuredImage.node.sourceUrl, alt: p.featuredImage.node.altText || '' } : null,
+        category: p.categories[0],
+      }))}
       categories={post.categories.map(c => ({ name: c.name, slug: c.slug, count: 0 }))}
     />
 
@@ -250,7 +276,7 @@ const breadcrumbItems = [
     <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
       {#each relatedPosts as related}
       <a class="group block bg-white border border-outline-variant/30 rounded-xl overflow-hidden premium-shadow hover:shadow-lg transition-shadow duration-300" href={`/artigo/${related.slug}`}>
-        <img class="w-full h-48 object-cover" src={related.featuredImage?.src || '/placeholder.jpg'} alt={related.featuredImage?.alt || related.title} />
+        <img class="w-full h-48 object-cover" src={related.featuredImage?.node?.sourceUrl || '/placeholder.jpg'} alt={related.featuredImage?.node?.altText || related.title} />
         <div class="p-6">
           <span class="font-label-caps text-label-caps text-primary mb-2 block">{related.categories[0]?.name || 'Artigo'}</span>
           <h3 class="font-headline-sm text-headline-sm text-on-surface mb-3 group-hover:text-primary transition-colors">{related.title}</h3>

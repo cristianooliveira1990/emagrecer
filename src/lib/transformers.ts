@@ -7,8 +7,8 @@ export function transformImage(wpImage: WPImage | null): Image | null {
   return {
     src: wpImage.sourceUrl,
     alt: wpImage.altText || '',
-    width: wpImage.width,
-    height: wpImage.height,
+    width: wpImage.mediaDetails?.width ?? wpImage.width ?? 800,
+    height: wpImage.mediaDetails?.height ?? wpImage.height ?? 600,
     sizes: wpImage.mediaDetails?.sizes?.map((size) => ({
       src: size.sourceUrl,
       width: size.width,
@@ -58,7 +58,8 @@ export function transformTag(wpTag: WPTag): Tag {
   };
 }
 
-export function transformSEO(wpSEO: WPPost['seo']): SEO {
+export function transformSEO(wpSEO: WPPost['seo']): SEO | null {
+  if (!wpSEO) return null;
   return {
     title: wpSEO.title,
     metaDesc: wpSEO.metaDesc,
@@ -96,7 +97,7 @@ export function transformPost(wpPost: WPPost): Post {
     categories: wpPost.categories.nodes.map(transformCategory),
     tags: wpPost.tags.nodes.map(transformTag),
     seo: transformSEO(wpPost.seo),
-    readingTime: wpPost.readingTime || Math.ceil(wpPost.content.length / 1000),
+    readingTime: wpPost.readingTime ?? Math.ceil(wpPost.content.length / 1000),
     uri: wpPost.uri,
   };
 }

@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
 import type { WPPost, WPCategory, WPTag, WPAuthor, WPPageInfo } from '../types/wordpress';
 
-const WPGRAPHQL_URL = import.meta.env.WPGRAPHQL_URL || 'https://emagrecer.xx.kg/graphql';
+const WPGRAPHQL_URL = import.meta.env.WPGRAPHQL_URL || 'https://cms.emagrecer.xx.kg/graphql';
 
 interface GraphQLResponse<T> {
   data?: T;
@@ -57,8 +57,8 @@ class WPGraphQLClient {
 
   async getPosts(first = 10, after?: string, where?: Record<string, unknown>) {
     const query = gql`
-      query GetPosts($first: Int!, $after: String, $where: PostObjectsConnectionWhereArgs) {
-        posts(first: $first, after: $after, where: $where) {
+      query GetPosts($first: Int!, $after: String) {
+        posts(first: $first, after: $after) {
           pageInfo {
             hasNextPage
             hasPreviousPage
@@ -79,8 +79,6 @@ class WPGraphQLClient {
               node {
                 sourceUrl
                 altText
-                width
-                height
                 mediaDetails {
                   width
                   height
@@ -133,26 +131,6 @@ class WPGraphQLClient {
                 uri
               }
             }
-            seo {
-              title
-              metaDesc
-              canonical
-              opengraphTitle
-              opengraphDescription
-              opengraphImage {
-                sourceUrl
-                altText
-              }
-              twitterTitle
-              twitterDescription
-              twitterImage {
-                sourceUrl
-                altText
-              }
-              metaRobotsNoindex
-              metaRobotsNofollow
-            }
-            readingTime
           }
         }
       }
@@ -163,7 +141,7 @@ class WPGraphQLClient {
         nodes: WPPost[];
         pageInfo: WPPageInfo;
       };
-    }>(query, { first, after, where });
+    }>(query, { first, after });
 
     return data.posts;
   }
@@ -185,8 +163,6 @@ class WPGraphQLClient {
             node {
               sourceUrl
               altText
-              width
-              height
               mediaDetails {
                 width
                 height
@@ -199,67 +175,48 @@ class WPGraphQLClient {
                 }
               }
             }
-            author {
-              node {
-                id
-                name
-                slug
-                description
-                avatar {
-                  url
-                  width
-                  height
-                }
+          }
+          author {
+            node {
+              id
+              name
+              slug
+              description
+              avatar {
                 url
-                posts {
-                  nodes {
-                    id
-                  }
+                width
+                height
+              }
+              url
+              posts {
+                nodes {
+                  id
                 }
               }
             }
-            categories {
-              nodes {
-                id
-                name
-                slug
-                description
-                count
-                uri
-              }
+          }
+          categories {
+            nodes {
+              id
+              name
+              slug
+              description
+              count
+              uri
             }
-            tags {
-              nodes {
-                id
-                name
-                slug
-                description
-                count
-                uri
-              }
+          }
+          tags {
+            nodes {
+              id
+              name
+              slug
+              description
+              count
+              uri
             }
-            seo {
-              title
-              metaDesc
-              canonical
-              opengraphTitle
-              opengraphDescription
-              opengraphImage {
-                sourceUrl
-                altText
-              }
-              twitterTitle
-              twitterDescription
-              twitterImage {
-                sourceUrl
-                altText
-              }
-              metaRobotsNoindex
-              metaRobotsNofollow
-            }
-            readingTime
           }
         }
+      }
       `;
 
     const data = await this.request<{
@@ -352,7 +309,6 @@ class WPGraphQLClient {
                   }
                 }
               }
-              readingTime
             }
           }
         }
@@ -454,7 +410,6 @@ class WPGraphQLClient {
                   }
                 }
               }
-              readingTime
             }
           }
         }
@@ -476,7 +431,7 @@ class WPGraphQLClient {
   async getAuthors(first = 100) {
     const query = gql`
       query GetAuthors($first: Int!) {
-        users(first: $first, where: { who: AUTHORS }) {
+        users(first: $first) {
           nodes {
             id
             name
@@ -484,8 +439,6 @@ class WPGraphQLClient {
             description
             avatar {
               url
-              width
-              height
             }
             url
             posts {
@@ -517,8 +470,6 @@ class WPGraphQLClient {
           description
           avatar {
             url
-            width
-            height
           }
           url
           posts(first: $first, after: $after) {
@@ -569,7 +520,6 @@ class WPGraphQLClient {
                   }
                 }
               }
-              readingTime
             }
           }
         }
@@ -701,8 +651,10 @@ class WPGraphQLClient {
               node {
                 sourceUrl
                 altText
-                width
-                height
+                mediaDetails {
+                  width
+                  height
+                }
               }
             }
             author {

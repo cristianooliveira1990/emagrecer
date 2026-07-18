@@ -2,8 +2,8 @@ export interface WPImage {
   id: string;
   sourceUrl: string;
   altText: string | null;
-  width: number;
-  height: number;
+  width?: number;
+  height?: number;
   mediaDetails?: {
     width: number;
     height: number;
@@ -76,7 +76,7 @@ export interface WPPost {
   tags: {
     nodes: WPTag[];
   };
-  seo: {
+  seo?: {
     title: string | null;
     metaDesc: string | null;
     canonical: string | null;
@@ -95,7 +95,7 @@ export interface WPPost {
     metaRobotsNoindex: boolean | null;
     metaRobotsNofollow: boolean | null;
   };
-  readingTime: number;
+  readingTime?: number;
 }
 
 export interface WPPageInfo {

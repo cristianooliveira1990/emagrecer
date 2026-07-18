@@ -8,9 +8,20 @@ import { wpClient } from '../../services/wp-graphql';
 export async function getStaticPaths() {
   try {
     const categories = await wpClient.getCategories(100);
+    const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://emagrecer.xx.kg';
     return categories.map((category) => ({
       params: { slug: category.slug },
-      props: { category },
+      props: {
+        category: {
+          name: category.name,
+          slug: category.slug,
+          description: category.description || '',
+          count: category.count || 0,
+        },
+        posts: { posts: [], pageInfo: { hasNextPage: false, hasPreviousPage: false } },
+        currentPage: 1,
+        siteUrl,
+      },
     }));
   } catch (error) {
     console.warn('Failed to fetch categories from WordPress for static paths:', error);
@@ -31,9 +42,15 @@ interface Props {
       slug: string;
       excerpt: string;
       date: string;
-      featuredImage: { src: string; alt: string; width: number; height: number } | null;
+      featuredImage: {
+        node: {
+          sourceUrl: string;
+          altText: string | null;
+          mediaDetails?: { width: number; height: number };
+        } | null;
+      };
       categories: Array<{ name: string; slug: string }>;
-      readingTime: number;
+      readingTime?: number;
     }>;
     pageInfo: { hasNextPage: boolean; hasPreviousPage: boolean; startCursor: string | null; endCursor: string | null };
   };
@@ -65,7 +82,7 @@ const jsonLd = {
   title={`${category.name} - Emagrecer`}
   description={category.description || `Descubra artigos sobre ${category.name.toLowerCase()} fundamentados em ciência para sua saúde e bem-estar.`}
   canonical={canonicalURL}
-  ogImage={posts.posts[0]?.featuredImage?.src}
+  ogImage={posts.posts[0]?.featuredImage?.node?.sourceUrl}
   schema={jsonLd}
 >
   <Container>

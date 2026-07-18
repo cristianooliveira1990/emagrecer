@@ -8,9 +8,21 @@ import { wpClient } from '../../services/wp-graphql';
 export async function getStaticPaths() {
   try {
     const authors = await wpClient.getAuthors(100);
+    const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://emagrecer.xx.kg';
     return authors.map((author) => ({
       params: { slug: author.slug },
-      props: { author },
+      props: {
+        author: {
+          name: author.name,
+          slug: author.slug,
+          description: author.description || '',
+          avatar: author.avatar ? { src: author.avatar.url, alt: author.name } : null,
+          postCount: author.posts?.nodes?.length || 0,
+        },
+        posts: { posts: [], pageInfo: { hasNextPage: false, hasPreviousPage: false } },
+        currentPage: 1,
+        siteUrl,
+      },
     }));
   } catch (error) {
     console.warn('Failed to fetch authors from WordPress for static paths:', error);
@@ -32,9 +44,15 @@ interface Props {
       slug: string;
       excerpt: string;
       date: string;
-      featuredImage: { src: string; alt: string } | null;
+      featuredImage: {
+        node: {
+          sourceUrl: string;
+          altText: string | null;
+          mediaDetails?: { width: number; height: number };
+        } | null;
+      };
       categories: Array<{ name: string; slug: string }>;
-      readingTime: number;
+      readingTime?: number;
     }>;
     pageInfo: { hasNextPage: boolean; hasPreviousPage: boolean };
   };

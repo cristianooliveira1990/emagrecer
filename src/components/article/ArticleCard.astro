@@ -9,13 +9,17 @@ interface Props {
     excerpt: string;
     date: string;
     featuredImage: {
-      src: string;
-      alt: string;
-      width: number;
-      height: number;
-    } | null;
+      node: {
+        sourceUrl: string;
+        altText: string | null;
+        mediaDetails?: {
+          width: number;
+          height: number;
+        };
+      } | null;
+    };
     categories: Array<{ name: string; slug: string }>;
-    readingTime: number;
+    readingTime?: number;
   };
   variant?: 'default' | 'featured' | 'horizontal' | 'compact' | 'vertical';
   class?: string;
@@ -24,7 +28,7 @@ interface Props {
 const { post, variant = 'default', class: className = '' } = Astro.props;
 const category = post.categories[0];
 const formattedDate = formatDate(post.date);
-const readingTime = formatReadingTime(post.readingTime);
+const readingTime = formatReadingTime(post.readingTime ?? 5);
 
 const baseClasses = 'group cursor-pointer bg-surface rounded-xl border border-surface-variant premium-shadow overflow-hidden';
 
@@ -76,8 +80,8 @@ function getImageClasses(v: string): string {
 const vClasses = getVariantClasses(variant);
 const cClasses = getContentClasses(variant);
 const iClasses = getImageClasses(variant);
-const showFull = post.featuredImage && variant !== 'compact';
-const showCompact = post.featuredImage && variant === 'compact';
+const showFull = post.featuredImage?.node && variant !== 'compact';
+const showCompact = post.featuredImage?.node && variant === 'compact';
 const isH = variant === 'horizontal';
 const isV = variant === 'vertical';
 const isC = variant === 'compact';
@@ -88,20 +92,20 @@ const isC = variant === 'compact';
     <div class={iClasses}>
       {showFull && (
         <Image
-          src={post.featuredImage.src}
-          alt={post.featuredImage.alt}
-          width={post.featuredImage.width}
-          height={post.featuredImage.height}
+          src={post.featuredImage.node.sourceUrl}
+          alt={post.featuredImage.node.altText || ''}
+          width={post.featuredImage.node.mediaDetails?.width}
+          height={post.featuredImage.node.mediaDetails?.height}
           class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
       )}
       {showCompact && (
         <div class={iClasses}>
           <Image
-            src={post.featuredImage.src}
-            alt={post.featuredImage.alt}
-            width={post.featuredImage.width}
-            height={post.featuredImage.height}
+            src={post.featuredImage.node.sourceUrl}
+            alt={post.featuredImage.node.altText || ''}
+            width={post.featuredImage.node.mediaDetails?.width}
+            height={post.featuredImage.node.mediaDetails?.height}
             class="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
         </div>

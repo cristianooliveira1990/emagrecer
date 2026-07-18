@@ -8,9 +8,20 @@ import { wpClient } from '../../services/wp-graphql';
 export async function getStaticPaths() {
   try {
     const tags = await wpClient.getTags(100);
+    const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://emagrecer.xx.kg';
     return tags.map((tag) => ({
       params: { slug: tag.slug },
-      props: { tag },
+      props: {
+        tag: {
+          name: tag.name,
+          slug: tag.slug,
+          description: tag.description || '',
+          count: tag.count || 0,
+        },
+        posts: { posts: [], pageInfo: { hasNextPage: false, hasPreviousPage: false, startCursor: null, endCursor: null } },
+        currentPage: 1,
+        siteUrl,
+      },
     }));
   } catch (error) {
     console.warn('Failed to fetch tags from WordPress for static paths:', error);
@@ -31,9 +42,15 @@ interface Props {
       slug: string;
       excerpt: string;
       date: string;
-      featuredImage: { src: string; alt: string; width: number; height: number } | null;
+      featuredImage: {
+        node: {
+          sourceUrl: string;
+          altText: string | null;
+          mediaDetails?: { width: number; height: number };
+        } | null;
+      };
       categories: Array<{ name: string; slug: string }>;
-      readingTime: number;
+      readingTime?: number;
     }>;
     pageInfo: { hasNextPage: boolean; hasPreviousPage: boolean; startCursor: string | null; endCursor: string | null };
   };

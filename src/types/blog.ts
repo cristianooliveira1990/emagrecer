@@ -1,4 +1,4 @@
-import type { WPPost, WPCategory, WPTag, WPAuthor, WPImage, WPSEO } from './wordpress';
+import type { WPPost, WPCategory, WPTag, WPAuthor, WPImage } from './wordpress';
 
 export interface Post {
   id: string;
