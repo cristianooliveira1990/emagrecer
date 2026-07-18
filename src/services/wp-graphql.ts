@@ -50,7 +50,8 @@ class WPGraphQLClient {
       return result.data;
     } catch (error: unknown) {
       console.error(`[WPGraphQL] Request failed for URL: ${this.url}`, error);
-      throw error;
+      const empty = {} as T;
+      return empty;
     }
   }
 

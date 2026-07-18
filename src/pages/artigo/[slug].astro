@@ -12,6 +12,7 @@ export async function getStaticPaths() {
   try {
     const result = await wpClient.getPosts(100);
     const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://emagrecer.xx.kg';
+    if (!result?.nodes) return [];
     return result.nodes.map((post) => {
       const flatPost = {
         ...post,
