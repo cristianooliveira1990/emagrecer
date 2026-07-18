@@ -95,10 +95,11 @@ interface Props {
 
 const { post, relatedPosts, tableOfContents, siteUrl } = Astro.props;
 
+const cleanExcerpt = post.excerpt?.replace(/<[^>]*>/g, '').trim() || '';
 const canonicalURL = post.seo?.canonical || `${siteUrl}/artigo/${post.slug}`;
 const ogImage = post.seo?.opengraphImage?.sourceUrl || post.featuredImage?.node?.sourceUrl;
 const ogTitle = post.seo?.opengraphTitle || post.title;
-const ogDescription = post.seo?.opengraphDescription || post.excerpt;
+const ogDescription = post.seo?.opengraphDescription || cleanExcerpt;
 const noindex = post.seo?.metaRobotsNoindex || false;
 const nofollow = post.seo?.metaRobotsNofollow || false;
 
@@ -106,7 +107,7 @@ const jsonLd = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
   headline: post.title,
-  description: post.excerpt,
+  description: cleanExcerpt,
   image: ogImage ? new URL(ogImage, siteUrl).toString() : undefined,
   datePublished: post.date,
   dateModified: post.modified,
@@ -138,7 +139,7 @@ const breadcrumbItems = [
 
 <MainLayout
   title={post.seo?.title || post.title}
-  description={post.seo?.metaDesc || post.excerpt}
+  description={post.seo?.metaDesc || cleanExcerpt}
   canonical={canonicalURL}
   ogImage={ogImage}
   ogTitle={ogTitle}
@@ -168,7 +169,7 @@ const breadcrumbItems = [
             {post.title}
           </h1>
           <p class="font-body-lg text-body-lg text-on-surface-variant mb-8">
-            {post.excerpt}
+            {cleanExcerpt}
           </p>
 
           <!-- Author Meta -->
@@ -219,7 +220,7 @@ const breadcrumbItems = [
         <!-- Content Canvas -->
         <div class="w-full max-w-[720px] font-body-lg text-body-lg text-on-surface prose prose-lg max-w-none article-content">
           <p class="lead text-xl text-on-surface-variant">
-            {post.excerpt}
+            {cleanExcerpt}
           </p>
 
           <!-- Table of Contents (Bento Style) -->
@@ -320,7 +321,7 @@ const breadcrumbItems = [
               <div class="p-6">
                 <span class="font-label-caps text-label-caps text-primary mb-2 block">{post.categories[0]?.name || 'Artigo'}</span>
                 <h3 class="font-headline-sm text-headline-sm text-on-surface mb-3 group-hover:text-primary transition-colors">{post.title}</h3>
-                <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">{post.excerpt}</p>
+                <p class="font-body-md text-body-md text-on-surface-variant line-clamp-2">{post.excerpt?.replace(/<[^>]*>/g, '').trim() || ''}</p>
               </div>
             </a>
           ))}
