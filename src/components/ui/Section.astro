@@ -1,12 +1,11 @@
 ---
 interface Props {
-  children: AstroHTMLAttributes<'section'>['children'];
   class?: string;
   padding?: 'none' | 'sm' | 'md' | 'lg' | 'xl';
   background?: 'default' | 'surface' | 'container-low' | 'container-high';
 }
 
-const { children, class: className = '', padding = 'lg', background = 'default' } = Astro.props;
+const { class: className = '', padding = 'lg', background = 'default' } = Astro.props;
 
 const paddingClasses = {
   none: '',
@@ -31,5 +30,5 @@ const backgroundClasses = {
     className,
   ]}
 >
-  {children}
+  <slot />
 </section>

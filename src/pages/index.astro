@@ -7,9 +7,15 @@ import Section from '../components/ui/Section.astro';
 import Container from '../components/ui/Container.astro';
 import { getCollection } from 'astro:content';
 
-const posts = await getCollection('blog');
-const featuredPosts = posts.slice(0, 4);
-const latestPosts = posts.slice(4, 10);
+let featuredPosts: any[] = [];
+let latestPosts: any[] = [];
+try {
+  const posts = await getCollection('blog');
+  featuredPosts = posts.slice(0, 4);
+  latestPosts = posts.slice(4, 10);
+} catch (e) {
+  // Collection not configured yet
+}
 
 const categories = [
   { name: 'Nutrição', slug: 'nutricao', count: 42 },
@@ -23,7 +29,6 @@ const categories = [
   title="Emagrecer - Sua Jornada Saudável"
   description="Descubra artigos fundamentados em ciência sobre nutrição, bem-estar mental e treinos que respeitam o seu corpo. Encontre o equilíbrio que você merece."
 >
-  <!-- Hero Section -->
   <Hero
     title="Inicie sua jornada para uma vida mais leve e saudável."
     subtitle="Descubra artigos fundamentados em ciência sobre nutrição, bem-estar mental e treinos que respeitam o seu corpo. Encontre o equilíbrio que você merece."
@@ -37,7 +42,6 @@ const categories = [
     }}
   />
 
-  <!-- Featured Articles Bento Grid -->
   <Section padding="xl" background="container-low">
     <Container>
       <div class="flex justify-between items-end mb-12 border-b border-outline-variant/20 pb-4">
@@ -48,15 +52,10 @@ const categories = [
         </a>
       </div>
       <div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
-        <!-- Featured Large Card -->
         {featuredPosts[0] && <ArticleCard post={featuredPosts[0]} variant="featured" />}
-
-        <!-- Vertical Cards -->
         <div class="md:col-span-4 space-y-gutter">
           {featuredPosts.slice(1, 3).map((post) => <ArticleCard post={post} variant="vertical" />)}
         </div>
-
-        <!-- Horizontal Cards -->
         <div class="md:col-span-8 space-y-gutter">
           {featuredPosts.slice(3, 5).map((post) => <ArticleCard post={post} variant="horizontal" />)}
         </div>
@@ -64,7 +63,6 @@ const categories = [
     </Container>
   </Section>
 
-  <!-- Latest Articles -->
   <Section padding="xl">
     <Container>
       <div class="flex justify-between items-end mb-12 border-b border-outline-variant/20 pb-4">
@@ -80,7 +78,6 @@ const categories = [
     </Container>
   </Section>
 
-  <!-- Categories -->
   <Section padding="xl" background="container-low">
     <Container>
       <div class="flex justify-between items-end mb-12 border-b border-outline-variant/20 pb-4">
@@ -106,6 +103,5 @@ const categories = [
     </Container>
   </Section>
 
-  <!-- Newsletter -->
   <Newsletter />
 </MainLayout>
