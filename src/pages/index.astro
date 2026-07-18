@@ -5,24 +5,28 @@ import ArticleCard from '../components/article/ArticleCard.astro';
 import Newsletter from '../components/newsletter/Newsletter.astro';
 import Section from '../components/ui/Section.astro';
 import Container from '../components/ui/Container.astro';
-import { getCollection } from 'astro:content';
+import { wpClient } from '../services/wp-graphql';
 
 let featuredPosts: any[] = [];
 let latestPosts: any[] = [];
 try {
-  const posts = await getCollection('blog');
+  const result = await wpClient.getPosts(10);
+  const posts = result.nodes.map((p: any) => ({
+    ...p,
+    categories: p.categories?.nodes || [],
+  }));
   featuredPosts = posts.slice(0, 4);
   latestPosts = posts.slice(4, 10);
 } catch (e) {
-  // Collection not configured yet
+  console.warn('Failed to fetch posts from WordPress:', e);
 }
 
-const categories = [
-  { name: 'Nutrição', slug: 'nutricao', count: 42 },
-  { name: 'Treino', slug: 'treino', count: 28 },
-  { name: 'Mente', slug: 'mente', count: 15 },
-  { name: 'Saúde', slug: 'saude', count: 22 },
-];
+let categories: Array<{ name: string; slug: string; count: number }> = [];
+try {
+  categories = await wpClient.getCategories(100);
+} catch (e) {
+  console.warn('Failed to fetch categories from WordPress:', e);
+}
 ---
 
 <MainLayout
