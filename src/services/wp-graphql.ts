@@ -1,7 +1,7 @@
 import { gql } from 'graphql-request';
 import type { WPPost, WPCategory, WPTag, WPAuthor, WPPageInfo } from '../types/wordpress';
 
-const WPGRAPHQL_URL = import.meta.env.WPGRAPHQL_URL || 'https://cms.emagrecer.xx.kg/graphql';
+const WPGRAPHQL_URL = import.meta.env.PUBLIC_WPGRAPHQL_URL || import.meta.env.WPGRAPHQL_URL || 'https://cms.emagrecer.xx.kg/graphql';
 
 interface GraphQLResponse<T> {
   data?: T;
@@ -49,9 +49,8 @@ class WPGraphQLClient {
 
       return result.data;
     } catch (error: unknown) {
-      console.error('GraphQL Request Error:', error);
-      // Return empty results for graceful degradation when WordPress is not available
-      return { posts: { nodes: [], pageInfo: { hasNextPage: false, hasPreviousPage: false } } } as unknown as T;
+      console.error(`[WPGraphQL] Request failed for URL: ${this.url}`, error);
+      throw error;
     }
   }
 

@@ -17,8 +17,8 @@ try {
   }));
   latestPost = posts[0] || null;
   latestPosts = posts.slice(1, 10);
-} catch (e) {
-  console.warn('Failed to fetch posts from WordPress:', e);
+} catch (e: any) {
+  console.warn('[Home] Failed to fetch posts from WordPress:', e?.message || e);
 }
 ---
 
