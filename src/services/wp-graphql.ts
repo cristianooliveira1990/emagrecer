@@ -26,6 +26,7 @@ class WPGraphQLClient {
         },
         cache: 'no-store',
         body: JSON.stringify({ query, variables }),
+        signal: AbortSignal.timeout(15000),
       });
 
       // Check HTTP status code
@@ -146,7 +147,7 @@ class WPGraphQLClient {
       };
     }>(query, { first, after });
 
-    return data.posts;
+    return data?.posts || { nodes: [], pageInfo: { hasNextPage: false, hasPreviousPage: false } };
   }
 
   async getPostBySlug(slug: string) {
@@ -226,7 +227,7 @@ class WPGraphQLClient {
       post: WPPost;
     }>(query, { id: slug, idType: 'SLUG' });
 
-    return data.post;
+    return data?.post || null;
   }
 
   async getCategories(first = 100) {
@@ -251,7 +252,7 @@ class WPGraphQLClient {
       };
     }>(query, { first });
 
-    return data.categories.nodes;
+    return data?.categories?.nodes || [];
   }
 
   async getCategoryBySlug(slug: string, first = 10, after?: string) {
@@ -327,7 +328,7 @@ class WPGraphQLClient {
       };
     }>(query, { id: slug, idType: 'SLUG', first, after });
 
-    return data.category;
+    return data?.category || null;
   }
 
   async getTags(first = 100) {
@@ -352,7 +353,7 @@ class WPGraphQLClient {
       };
     }>(query, { first });
 
-    return data.tags.nodes;
+    return data?.tags?.nodes || [];
   }
 
   async getTagBySlug(slug: string, first = 10, after?: string) {
@@ -428,7 +429,7 @@ class WPGraphQLClient {
       };
     }>(query, { id: slug, idType: 'SLUG', first, after });
 
-    return data.tag;
+    return data?.tag || null;
   }
 
   async getAuthors(first = 100) {
@@ -460,7 +461,7 @@ class WPGraphQLClient {
       };
     }>(query, { first });
 
-    return data.users.nodes;
+    return data?.users?.nodes || [];
   }
 
   async getAuthorBySlug(slug: string, first = 10, after?: string) {
@@ -538,7 +539,7 @@ class WPGraphQLClient {
       };
     }>(query, { id: slug, idType: 'SLUG', first, after });
 
-    return data.user;
+    return data?.user || null;
   }
 
   async getMenu(location: string) {
@@ -582,7 +583,7 @@ class WPGraphQLClient {
       };
     }>(query, { location });
 
-    return data.menuItems.nodes;
+    return data?.menuItems?.nodes || [];
   }
 
   async getSiteInfo() {
