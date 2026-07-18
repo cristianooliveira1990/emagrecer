@@ -15,11 +15,40 @@ interface GraphQLResponse<T> {
   errors?: Array<{ message: string }>;
 }
 
+interface RESTPost {
+  id: number;
+  slug: string;
+  title: { rendered: string };
+  excerpt: { rendered: string };
+  content: { rendered: string };
+  date: string;
+  modified: string;
+  featured_media: number;
+  _embedded?: {
+    'wp:featuredmedia'?: Array<{ source_url: string; alt_text: string; media_details?: { width: number; height: number } }>;
+    'wp:term'?: Array<Array<{ id: number; name: string; slug: string }>>;
+    author?: Array<{ id: number; name: string; slug: string; description?: string; avatar_urls?: Record<string, string> }>;
+  };
+}
+
 class WPGraphQLClient {
   private url: string;
 
   constructor() {
     this.url = WPGRAPHQL_URL;
+  }
+
+  async restGet<T>(endpoint: string): Promise<T | null> {
+    try {
+      const res = await fetch(`${WP_BASE_URL}/wp-json/wp/v2/${endpoint}`, {
+        headers: { 'User-Agent': 'Emagrecer-Astro/1.0', 'Accept': 'application/json' },
+        signal: AbortSignal.timeout(10000),
+      });
+      if (!res.ok) return null;
+      return await res.json() as T;
+    } catch {
+      return null;
+    }
   }
 
   async request<T>(query: string, variables?: Record<string, unknown>): Promise<T> {
@@ -154,7 +183,50 @@ class WPGraphQLClient {
       };
     }>(query, { first, after });
 
-    return data?.posts || { nodes: [], pageInfo: { hasNextPage: false, hasPreviousPage: false } };
+    if (data?.posts?.nodes?.length) {
+      return data.posts;
+    }
+
+    const restPosts = await this.restGet<RESTPost[]>(`posts?per_page=${first}&_embed=1`);
+    if (restPosts && restPosts.length > 0) {
+      const nodes = restPosts.map((p) => ({
+        id: String(p.id),
+        databaseId: p.id,
+        title: p.title.rendered,
+        slug: p.slug,
+        excerpt: p.excerpt.rendered,
+        content: p.content.rendered,
+        date: p.date,
+        modified: p.modified,
+        featuredImage: p._embedded?.['wp:featuredmedia']?.[0]
+          ? {
+              node: {
+                sourceUrl: p._embedded['wp:featuredmedia'][0].source_url,
+                altText: p._embedded['wp:featuredmedia'][0].alt_text,
+                mediaDetails: p._embedded['wp:featuredmedia'][0].media_details,
+              },
+            }
+          : null,
+        author: p._embedded?.author?.[0]
+          ? {
+              node: {
+                name: p._embedded.author[0].name,
+                slug: p._embedded.author[0].slug,
+                description: p._embedded.author[0].description || '',
+                avatar: { url: p._embedded.author[0].avatar_urls?.['96'] || '' },
+              },
+            }
+          : null,
+        categories: p._embedded?.['wp:term']?.[0]
+          ? { nodes: p._embedded['wp:term'][0].map((t: any) => ({ name: t.name, slug: t.slug })) }
+          : { nodes: [] },
+        tags: { nodes: [] },
+        readingTime: Math.ceil(p.content.rendered.split(' ').length / 200),
+      }));
+      return { nodes, pageInfo: { hasNextPage: false, hasPreviousPage: false } };
+    }
+
+    return { nodes: [], pageInfo: { hasNextPage: false, hasPreviousPage: false } };
   }
 
   async getPostBySlug(slug: string) {
@@ -259,7 +331,22 @@ class WPGraphQLClient {
       };
     }>(query, { first });
 
-    return data?.categories?.nodes || [];
+    if (data?.categories?.nodes?.length) {
+      return data.categories.nodes;
+    }
+
+    const restCats = await this.restGet<Array<{ id: number; name: string; slug: string; description: string; count: number }>>(`categories?per_page=${first}&hide_empty=true`);
+    if (restCats && restCats.length > 0) {
+      return restCats.map((c) => ({
+        id: String(c.id),
+        name: c.name,
+        slug: c.slug,
+        description: c.description,
+        count: c.count,
+      }));
+    }
+
+    return [];
   }
 
   async getCategoryBySlug(slug: string, first = 10, after?: string) {
@@ -691,21 +778,16 @@ class WPGraphQLClient {
     return data.posts.nodes;
   }
 
-  async getMenuItems(menuSlug = 'menu-principal') {
+  async getMenuItems() {
     try {
-      const res = await fetch(`${WP_BASE_URL}/wp-json/wp/v2/menu-items?menus=5&per_page=50`, {
-        headers: { 'User-Agent': 'Emagrecer-Astro/1.0' },
-      });
-      if (!res.ok) return [];
-      const items = await res.json();
-      return items
-        .sort((a: any, b: any) => (a.menu_order || 0) - (b.menu_order || 0))
-        .map((item: any) => ({
-          label: item.title?.rendered || '',
-          href: item.url || '#',
-        }));
+      const cats = await this.getCategories(50);
+      const items = [
+        { label: 'Início', href: '/' },
+        ...cats.map((c) => ({ label: c.name, href: `/categoria/${c.slug}` })),
+      ];
+      return items;
     } catch (e) {
-      console.error('[WPGraphQL] Failed to fetch menu items:', e);
+      console.error('[WPGraphQL] Failed to build menu:', e);
       return [];
     }
   }
