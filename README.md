@@ -437,4 +437,4 @@ MIT License - veja [LICENSE](LICENSE) para detalhes.
 
 ---
 
-Feito com ❤️ para uma vida mais saudável.
+Feito com ❤️ para uma vida mais saudável.# emagrecer
