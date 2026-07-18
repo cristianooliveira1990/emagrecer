@@ -87,8 +87,8 @@ const isV = variant === 'vertical';
 const isC = variant === 'compact';
 ---
 
-<article class:list={[baseClasses, vClasses, className]}>
-  <a href={`/artigo/${post.slug}`} class="block">
+<article class:list={[baseClasses, className]}>
+  <a href={`/artigo/${post.slug}`} class={vClasses}>
     <div class={iClasses}>
       {showFull && (
         <Image
