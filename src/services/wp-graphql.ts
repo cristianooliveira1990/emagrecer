@@ -21,7 +21,10 @@ class WPGraphQLClient {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'User-Agent': 'Emagrecer-Astro/1.0',
         },
+        cache: 'no-store',
         body: JSON.stringify({ query, variables }),
       });
 
