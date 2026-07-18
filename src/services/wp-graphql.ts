@@ -1,7 +1,12 @@
 import { gql } from 'graphql-request';
 import type { WPPost, WPCategory, WPTag, WPAuthor, WPPageInfo } from '../types/wordpress';
 
-const WPGRAPHQL_URL = import.meta.env.PUBLIC_WPGRAPHQL_URL || import.meta.env.WPGRAPHQL_URL || 'https://cms.emagrecer.xx.kg/graphql';
+function envVar(name: string): string | undefined {
+  const val = (import.meta as any).env?.[name];
+  return val && val !== 'undefined' ? val : undefined;
+}
+const SITE_URL = envVar('PUBLIC_SITE_URL') || envVar('SITE_URL') || 'https://emagrecer.xx.kg';
+const WPGRAPHQL_URL = envVar('PUBLIC_WPGRAPHQL_URL') || envVar('WPGRAPHQL_URL') || 'https://cms.emagrecer.xx.kg/graphql';
 
 interface GraphQLResponse<T> {
   data?: T;
