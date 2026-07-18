@@ -1,0 +1,53 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import Section from '../components/ui/Section.astro';
+import Container from '../components/ui/Container.astro';
+
+const canonicalURL = 'https://emagrecer.xx.kg/anuncie';
+---
+
+<MainLayout
+  title="Anuncie - Emagrecer"
+  description="Divulgue sua marca no Emagrecer e alcance milhares de leitores interessados em nutrição, saúde e bem-estar."
+  canonical={canonicalURL}
+>
+  <Container maxWidth="prose">
+    <Section padding="xl">
+      <header class="mb-12 text-center max-w-2xl mx-auto">
+        <h1 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface mb-4">
+          Anuncie Conosco
+        </h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant">
+          Leve sua marca para milhares de leitores engajados com saúde, nutrição e bem-estar.
+        </p>
+      </header>
+
+      <div class="max-w-2xl mx-auto space-y-8">
+        <section>
+          <h2 class="font-headline-md text-headline-md text-on-surface mb-4">Por que anunciar no Emagrecer?</h2>
+          <ul class="space-y-3 font-body-lg text-body-lg text-on-surface-variant">
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-primary mt-0.5" data-icon="group">group</span>
+              <span>Público qualificado interessado em saúde e bem-estar</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-primary mt-0.5" data-icon="trending_up">trending_up</span>
+              <span>Conteúdo baseado em evidências científicas</span>
+            </li>
+            <li class="flex items-start gap-3">
+              <span class="material-symbols-outlined text-primary mt-0.5" data-icon="campaign">campaign</span>
+              <span>Formatos variados: artigos patrocinados, banners, newsletters</span>
+            </li>
+          </ul>
+        </section>
+
+        <section class="bg-surface-container-low rounded-xl p-8">
+          <h2 class="font-headline-md text-headline-md text-on-surface mb-4">Entre em contato</h2>
+          <p class="font-body-lg text-body-lg text-on-surface-variant mb-6">
+            Envie um e-mail para <strong>contato@emagrecer.xx.kg</strong> com o assunto "Publicidade" e nossa equipe retornará em até 48 horas.
+          </p>
+        </section>
+      </div>
+    </Section>
+  </Container>
+</MainLayout>

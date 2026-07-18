@@ -2,6 +2,7 @@
 import '../styles/global.css';
 import Header from '../components/layout/Header.astro';
 import Footer from '../components/layout/Footer.astro';
+import { wpClient } from '../services/wp-graphql';
 
 interface Props {
   title: string;
@@ -25,8 +26,24 @@ const {
   schema,
 } = Astro.props;
 
-const siteName = import.meta.env.PUBLIC_SITE_NAME || 'Emagrecer';
-const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://emagrecer.xx.kg';
+const siteName = env('PUBLIC_SITE_NAME') || 'Emagrecer';
+const siteUrl = env('PUBLIC_SITE_URL') || 'https://emagrecer.xx.kg';
+
+function env(name: string): string | undefined {
+  const val = (import.meta as any).env?.[name];
+  return val && val !== 'undefined' ? val : undefined;
+}
+
+let navigation: Array<{ label: string; href: string }> = [
+  { label: 'Início', href: '/' },
+  { label: 'Categorias', href: '/categorias' },
+];
+try {
+  const menuItems = await wpClient.getMenuItems();
+  if (menuItems.length > 0) navigation = menuItems;
+} catch (e) {
+  // Keep hardcoded navigation as fallback
+}
 const canonicalUrl = canonical || new URL(Astro.url.pathname, siteUrl).toString();
 const ogTitleText = ogTitle || title;
 const ogDescriptionText = ogDescription || description;
@@ -104,13 +121,7 @@ const ogImageUrl = ogImage || new URL('/og-default.jpg', siteUrl).toString();
     </script>
 
     <Header
-      navigation={[
-        { label: 'Início', href: '/' },
-        { label: 'Nutrição', href: '/categoria/nutricao' },
-        { label: 'Treino', href: '/categoria/treino' },
-        { label: 'Mente', href: '/categoria/mente' },
-        { label: 'Saúde', href: '/categoria/saude' },
-      ]}
+      navigation={navigation}
       newsletterHref="/newsletter"
     />
 

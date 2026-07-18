@@ -1,6 +1,8 @@
 import { gql } from 'graphql-request';
 import type { WPPost, WPCategory, WPTag, WPAuthor, WPPageInfo } from '../types/wordpress';
 
+const WP_BASE_URL = 'https://cms.emagrecer.xx.kg';
+
 function envVar(name: string): string | undefined {
   const val = (import.meta as any).env?.[name];
   return val && val !== 'undefined' ? val : undefined;
@@ -687,6 +689,25 @@ class WPGraphQLClient {
     }>(query, { first });
 
     return data.posts.nodes;
+  }
+
+  async getMenuItems(menuSlug = 'menu-principal') {
+    try {
+      const res = await fetch(`${WP_BASE_URL}/wp-json/wp/v2/menu-items?menus=5&per_page=50`, {
+        headers: { 'User-Agent': 'Emagrecer-Astro/1.0' },
+      });
+      if (!res.ok) return [];
+      const items = await res.json();
+      return items
+        .sort((a: any, b: any) => (a.menu_order || 0) - (b.menu_order || 0))
+        .map((item: any) => ({
+          label: item.title?.rendered || '',
+          href: item.url || '#',
+        }));
+    } catch (e) {
+      console.error('[WPGraphQL] Failed to fetch menu items:', e);
+      return [];
+    }
   }
 }
 
